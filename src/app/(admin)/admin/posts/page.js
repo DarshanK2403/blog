@@ -3,13 +3,15 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Search, Filter, Plus, Edit2, Trash2, Eye, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import usePostTypes from "@/hook/usePostTypes";
 
 const AllPost = () => {
   // Sample data - replace with your actual data source
   const [posts, setPosts] = useState([]);
   const router = useRouter();
   const [deletingSlug, setDeletingSlug] = useState(null);
-
+  const { postTypes } = usePostTypes();
+  const postOpt = postTypes.map((data) => data.name);
   const getAllPosts = async () => {
     try {
       const res = await fetch("/api/posts");
@@ -55,13 +57,13 @@ const AllPost = () => {
   const [categoryFilter, setCategoryFilter] = useState("All");
 
   // Filter posts based on search and filters
-  const filteredPosts = posts.filter((post) => {
+  const filteredPosts = posts?.filter((post) => {
     const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.publisher.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "All" || post.status === statusFilter;
+      statusFilter === "All" || post.postType.slug === statusFilter;
     const matchesCategory =
       categoryFilter === "All" || post.category === categoryFilter;
 
@@ -138,11 +140,10 @@ const AllPost = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-3 py-2 border border-gray-300 focus:outline-none focus:border-black"
             >
-              <option value="All">All Status</option>
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-              <option value="review">Review</option>
-              <option value="archived">Archived</option>
+              <option value="All">ALL</option>
+              {postTypes.map((data) => (
+                  <option key={data.slug} value={data.slug}>{data.displayName}</option>
+              ))}
             </select>
 
             {/* Category Filter */}
@@ -164,7 +165,7 @@ const AllPost = () => {
         {/* Results Count */}
         <div className="mb-4">
           <p className="text-gray-600">
-            Showing {filteredPosts.length} of {posts.length} posts
+            Showing {filteredPosts?.length} of {posts?.length} posts
           </p>
         </div>
 
@@ -173,7 +174,7 @@ const AllPost = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <tbody className="bg-white divide-x divide-gray-200">
-                {filteredPosts.map((post) => (
+                {filteredPosts?.map((post) => (
                   <tr
                     key={post.slug}
                     className="hover:bg-gray-50 border border-gray-300"
@@ -282,7 +283,7 @@ const AllPost = () => {
             </table>
           </div>
 
-          {filteredPosts.length === 0 && (
+          {filteredPosts?.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500">
                 No posts found matching your criteria.
@@ -294,7 +295,7 @@ const AllPost = () => {
         {/* Pagination */}
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            Showing 1 to {filteredPosts.length} of {filteredPosts.length}{" "}
+            Showing 1 to {filteredPosts?.length} of {filteredPosts?.length}{" "}
             results
           </div>
           <div className="flex space-x-1">

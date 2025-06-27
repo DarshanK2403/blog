@@ -47,20 +47,51 @@ blockquote {
   color: #666;
 }
 
-table {
+/* table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px 12px;
   text-align: left;
 }
 
 th {
-  background-color: #f3f4f6; /* light gray background */
+  background-color: #f3f4f6;
   font-weight: bold;
+} */
+
+.rich-content * {
+  all: unset;
+  display: revert;
+  font-size: 1rem;
+  font-weight: normal;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.5;
+  color: inherit;
+}
+
+.rich-content h1 {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.rich-content h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.rich-content h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.rich-content p{
+  text-align: justify;
+  color: black;
 }

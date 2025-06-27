@@ -119,7 +119,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className=" bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Section
           title="Latest Jobs"
@@ -163,7 +163,9 @@ export default function Home() {
 
         <section className="mb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Job Updates</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Job Updates
+            </h2>
             <Link
               href="#"
               className="text-blue-600 text-sm hover:underline flex items-center"
@@ -187,7 +189,11 @@ export default function Home() {
                       {update?.extraFields?.description}
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                      <span className={`px-2 py-1 rounded-full font-medium ${getUpdateTypeColor(update?.extraFields?.subject)}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full font-medium ${getUpdateTypeColor(
+                          update?.extraFields?.subject
+                        )}`}
+                      >
                         {update?.extraFields?.subject}
                       </span>
                       <span className="text-gray-500">
@@ -238,9 +244,7 @@ function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right">
-                  {renderRight(item)}
-                </td>
+                <td className="px-4 py-3 text-right">{renderRight(item)}</td>
               </tr>
             ))}
           </tbody>

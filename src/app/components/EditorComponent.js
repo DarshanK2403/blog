@@ -39,7 +39,6 @@ class SimpleHR {
   }
 }
 
-
 const EditorComponent = forwardRef((props, ref) => {
   const editorRef = useRef(null);
   const editorHolderRef = useRef(null);
@@ -101,7 +100,7 @@ const EditorComponent = forwardRef((props, ref) => {
               class: ImageTool,
               config: {
                 endpoints: {
-                  byFile: "http://localhost:5000/uploadFile",
+                  byFile: "/api/upload",
                   byUrl: "http://localhost:5000/fetchUrl",
                 },
               },

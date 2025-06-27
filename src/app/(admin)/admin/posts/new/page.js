@@ -7,24 +7,32 @@ import usePostTypes from "@/hook/usePostTypes";
 import useCategories from "@/hook/useCategories";
 import useOrganizations from "@/hook/useOrg";
 import dynamic from "next/dynamic";
-const EditorComponent = dynamic(
-  () => import("@/app/components/EditorComponent"),
-  {
-    ssr: false, // Disable server-side rendering (important for Editor.js)
-  }
-);
-// Dummy category & org list - you will fetch from DB
-const categoryOptions = [
-  { slug: "general-knowledge", name: "General Knowledge" },
-  { slug: "current-affairs", name: "Current Affairs" },
-  { slug: "banking", name: "Banking" },
-];
 
-const organizationOptions = [
-  { slug: "ssc", name: "SSC" },
-  { slug: "railway", name: "Railway" },
-  { slug: "bank-exams", name: "Bank Exams" },
-];
+const EditorComponent = dynamic(() => import("@/app/components/EditorComponent"), {
+  ssr: false,
+});
+
+// ✅ Inject slug into image blocks from Editor.js
+function injectSlugIntoImages(editorData) {
+  const blocks = editorData.blocks.map((block) => {
+    if (block.type === "image" && block.data?.file?.url) {
+      const filename = block.data.file.url.split("/").pop();
+      return {
+        ...block,
+        data: {
+          ...block.data,
+          file: {
+            ...block.data.file,
+            slug: filename,
+          },
+        },
+      };
+    }
+    return block;
+  });
+
+  return { ...editorData, blocks };
+}
 
 export default function CreatePost() {
   const editorRef = useRef();
@@ -33,15 +41,23 @@ export default function CreatePost() {
   const [isLoading, setIsLoading] = useState(false);
   const [extraFields, setExtraFields] = useState({});
   const [formData, setFormData] = useState({});
+
   const { categories } = useCategories({ all: true });
   const categoryOption = categories?.map((data) => ({
     label: data.name,
     value: data._id,
   }));
+
   const { organization } = useOrganizations();
   const orgOption = organization?.map((data) => ({
     label: data.name,
     value: data._id,
+  }));
+
+  const { postTypes } = usePostTypes();
+  const typeOption = postTypes?.map((type) => ({
+    label: type.displayName,
+    value: type._id,
   }));
 
   const router = useRouter();
@@ -54,7 +70,8 @@ export default function CreatePost() {
 
     setIsLoading(true);
     try {
-      const content = await editorRef.current?.save();
+      const contentRaw = await editorRef.current?.save();
+      const content = injectSlugIntoImages(contentRaw); // ✅ Inject slugs into image blocks
 
       const postData = {
         type: formData.type,
@@ -65,8 +82,6 @@ export default function CreatePost() {
         status: finalStatus,
         content,
       };
-
-      console.log(postData);
 
       const res = await fetch("/api/posts", {
         method: "POST",
@@ -103,12 +118,6 @@ export default function CreatePost() {
     }
   };
 
-  const { postTypes, loading, error } = usePostTypes();
-  const typeOption = postTypes?.map((type) => ({
-    label: type.displayName,
-    value: type._id,
-  }));
-
   const formFields = [
     {
       name: "type",
@@ -143,14 +152,10 @@ export default function CreatePost() {
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold text-slate-900">
-              Create New Post
-            </h1>
+            <h1 className="text-xl font-semibold text-slate-900">Create New Post</h1>
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 ${getStatusColor(status)}`}></div>
-              <span className="text-sm font-medium text-slate-600 capitalize">
-                {status}
-              </span>
+              <span className="text-sm font-medium text-slate-600 capitalize">{status}</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -174,10 +179,9 @@ export default function CreatePost() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px]">
-        {/* Main Content Area */}
+        {/* Main Content */}
         <div className="p-6">
           <div className="max-w-4xl mx-auto">
-            {/* Title Input */}
             <div className="mb-8">
               <input
                 type="text"
@@ -188,7 +192,6 @@ export default function CreatePost() {
               />
             </div>
 
-            {/* Editor Container */}
             <div className="bg-white border border-slate-200 shadow-sm py-4">
               <EditorComponent ref={editorRef} />
             </div>
@@ -198,14 +201,9 @@ export default function CreatePost() {
         {/* Sidebar */}
         <div className="border-l border-slate-200 bg-white">
           <div className="p-6 space-y-6">
-            {/* Post Settings Header */}
             <div className="pb-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900">
-                Post Settings
-              </h3>
-              <p className="text-sm text-slate-500 mt-1">
-                Configure your post metadata
-              </p>
+              <h3 className="text-lg font-semibold text-slate-900">Post Settings</h3>
+              <p className="text-sm text-slate-500 mt-1">Configure your post metadata</p>
             </div>
 
             <div className="space-y-2">
@@ -219,39 +217,8 @@ export default function CreatePost() {
               ))}
             </div>
 
-            {/* {type &&
-              PostTypeFields[type]?.map((field) => (
-                <div key={field.name} className="text-gray-800">
-                  <label className="text-gray-800">{field.label}</label>
-                  {field.type === "select" ? (
-                    <select
-                      value={extraFields[field.name] || ""}
-                      onChange={(e) => handleChange(field.name, e.target.value)}
-                      className="w-full border border-slate-300 text-gray-800 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    >
-                      <option value="">Select</option>
-                      {field.options.map((opt) => (
-                        <option key={opt} value={opt} className="text-gray-800">
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type={field.type}
-                      value={extraFields[field.name] || ""}
-                      className="w-full border border-slate-300 text-gray-800 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                      onChange={(e) => handleChange(field.name, e.target.value)}
-                    />
-                  )}
-                </div>
-              ))} */}
-
-            {/* Publishing Info */}
             <div className="pt-4 border-t border-slate-200">
-              <h4 className="text-sm font-medium text-slate-700 mb-3">
-                Publishing Info
-              </h4>
+              <h4 className="text-sm font-medium text-slate-700 mb-3">Publishing Info</h4>
               <div className="space-y-2 text-sm text-slate-500">
                 <div className="flex justify-between">
                   <span>Word count:</span>
@@ -263,12 +230,11 @@ export default function CreatePost() {
                 </div>
                 <div className="flex justify-between">
                   <span>Created:</span>
-                  {/* <span>{new Date().toLocaleDateString()}</span> */}
+                  <span>—</span>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="pt-4 space-y-3">
               <button
                 onClick={handleSave}

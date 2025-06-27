@@ -2,7 +2,7 @@ import dbConnect from "@/lib/dbConnect"; // your DB connection
 import Post from "@/lib/models/Post"; // your mongoose Post model
 import PostType from "@/lib/models/PostType";
 import Organization from "@/lib/models/Organization";
-
+import Category from "@/lib/models/Category";
 // Generate slug function
 const generateSlug = (title) => {
   return title
@@ -83,6 +83,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const postTypeParam = searchParams.get("postType");
+    const organizationParam = searchParams.get("organization");
 
     const query = {};
 
@@ -90,9 +91,9 @@ export async function GET(request) {
       query.status = status;
     }
 
+    // Handle postType by slug or ObjectId
     if (postTypeParam) {
-      // Allow ObjectId or slug
-      if (postTypeParam.match(/^[0-9a-fA-F]{24}$/)) {
+      if (/^[0-9a-fA-F]{24}$/.test(postTypeParam)) {
         query.postType = postTypeParam;
       } else {
         const type = await PostType.findOne({ slug: postTypeParam });
@@ -106,10 +107,26 @@ export async function GET(request) {
       }
     }
 
+    if (organizationParam) {
+      const orgRegex = new RegExp(`^${organizationParam}$`, "i"); // case-insensitive
+      const org =
+        (await Organization.findOne({ slug: orgRegex })) ||
+        (await Organization.findOne({ name: orgRegex }));
+
+      if (!org) {
+        return Response.json(
+          { success: false, message: "Invalid organization slug" },
+          { status: 404 }
+        );
+      }
+
+      query.organization = org._id;
+    }
+
     const posts = await Post.find(query)
       .sort({ createdAt: -1 })
       .populate("category")
-      .populate({ path: "organization", select: "name" })
+      .populate({ path: "organization", select: "name slug" })
       .populate({ path: "postType", select: "displayName slug" })
       .lean();
 

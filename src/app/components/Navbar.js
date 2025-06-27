@@ -63,12 +63,12 @@ const Navbar = () => {
   return (
     <nav
       ref={navRef}
-      className="bg-white shadow-md border-b-2 border-blue-600 sticky top-0 z-50"
+      className="bg-gray-900 text-white shadow-md border-b-2 border-blue-600 sticky top-0 z-50"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="text-xl font-bold text-gray-900">Yuva Gujarat</div>
+          <div className="text-xl font-bold ">Yuva Gujarat</div>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-6">
@@ -180,7 +180,7 @@ const Navbar = () => {
 
       {/* Mobile Nav */}
       {isOpen && (
-        <div className="md:hidden px-4 py-4 space-y-2 border-t">
+        <div className="md:hidden  px-4 py-4 space-y-2 border-t">
           <input
             type="text"
             placeholder="Search..."

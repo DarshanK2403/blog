@@ -31,20 +31,20 @@ export default function RootLayout({ children }) {
             <Navbar />
           </header>
 
-          {/* Main content layout */}
-          <div className="flex-1 w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-4">
-            {/* Sidebar - order 1 on desktop, order 2 on mobile */}
-            <aside className="order-2 md:order-1 col-span-12 md:col-span-3">
+          {/* Full layout below navbar */}
+          <div className="flex flex-1 min-h-0">
+            {/* Sidebar fixed to the left */}
+            <aside className="w-64 bg-gray-900 text-white hidden md:block h-full sticky top-0">
               <Sidebar />
             </aside>
 
-            {/* Main content - order 1 always on mobile, order 2 on desktop */}
-            <main className="order-1 md:order-2 col-span-12 md:col-span-9 px-4">
-              {children}
+            {/* Main content */}
+            <main className="flex-1">
+              <div className="max-w-6xl mx-auto px-4 py-6">{children}</div>
             </main>
           </div>
 
-          {/* Footer at bottom always */}
+          {/* Footer at bottom */}
           <footer>
             <Footer />
           </footer>
