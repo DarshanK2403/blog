@@ -1,21 +1,24 @@
 import { NextResponse } from "next/server";
 
-export async function GET(request) {
-  const slug = request.nextUrl.pathname.split("/").pop(); // gets 'filename.png'
+export async function GET(request, context) {
+  const { slug } = context.params; // ✅ Correct way to access slug
 
   if (!slug) {
     return NextResponse.json({ error: "Missing slug" }, { status: 400 });
   }
 
-  const cloudinaryURL = `https://res.cloudinary.com/dohprjabq/image/upload/v1751018760/editorjs/${slug}`;
+  const cloudinaryURL = `https://res.cloudinary.com/dohprjabq/image/upload/v1751018760/editorjs/${encodeURIComponent(
+    slug
+  )}`;
 
   try {
     const response = await fetch(cloudinaryURL);
+
     if (!response.ok) {
-      return new NextResponse("Not Found", { status: 404 });
+      return new NextResponse("Image not found", { status: 404 });
     }
 
-    const contentType = response.headers.get("content-type");
+    const contentType = response.headers.get("content-type") || "image/jpeg";
     const buffer = await response.arrayBuffer();
 
     return new NextResponse(Buffer.from(buffer), {

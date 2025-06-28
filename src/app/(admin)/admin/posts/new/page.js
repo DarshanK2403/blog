@@ -8,40 +8,22 @@ import useCategories from "@/hook/useCategories";
 import useOrganizations from "@/hook/useOrg";
 import dynamic from "next/dynamic";
 
-const EditorComponent = dynamic(() => import("@/app/components/EditorComponent"), {
-  ssr: false,
-});
-
-// ✅ Inject slug into image blocks from Editor.js
-function injectSlugIntoImages(editorData) {
-  const blocks = editorData.blocks.map((block) => {
-    if (block.type === "image" && block.data?.file?.url) {
-      const filename = block.data.file.url.split("/").pop();
-      return {
-        ...block,
-        data: {
-          ...block.data,
-          file: {
-            ...block.data.file,
-            slug: filename,
-          },
-        },
-      };
-    }
-    return block;
-  });
-
-  return { ...editorData, blocks };
-}
+const EditorComponent = dynamic(
+  () => import("@/app/components/EditorComponent"),
+  {
+    ssr: false,
+  }
+);
 
 export default function CreatePost() {
-  const editorRef = useRef();
+  const editorRef = useRef(null);
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("draft");
   const [isLoading, setIsLoading] = useState(false);
   const [extraFields, setExtraFields] = useState({});
   const [formData, setFormData] = useState({});
-
+  const [dynamicImageFields, setDynamicImageFields] = useState([]);
+  console.log("dynamicImageFields",dynamicImageFields);
   const { categories } = useCategories({ all: true });
   const categoryOption = categories?.map((data) => ({
     label: data.name,
@@ -71,7 +53,7 @@ export default function CreatePost() {
     setIsLoading(true);
     try {
       const contentRaw = await editorRef.current?.save();
-      const content = injectSlugIntoImages(contentRaw); // ✅ Inject slugs into image blocks
+      const content = contentRaw;
 
       const postData = {
         type: formData.type,
@@ -152,10 +134,14 @@ export default function CreatePost() {
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold text-slate-900">Create New Post</h1>
+            <h1 className="text-xl font-semibold text-slate-900">
+              Create New Post
+            </h1>
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 ${getStatusColor(status)}`}></div>
-              <span className="text-sm font-medium text-slate-600 capitalize">{status}</span>
+              <span className="text-sm font-medium text-slate-600 capitalize">
+                {status}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -193,7 +179,17 @@ export default function CreatePost() {
             </div>
 
             <div className="bg-white border border-slate-200 shadow-sm py-4">
-              <EditorComponent ref={editorRef} />
+              <EditorComponent
+                ref={editorRef}
+                onImageAdd={({ src, index, field }) => {
+                  console.log(`📸 Image ${index} added: ${src}`);
+                  setDynamicImageFields((prev) => {
+                    const exists = prev.find((f) => f.name === field.name);
+                    if (exists) return prev;
+                    return [...prev, field];
+                  });
+                }}
+              />
             </div>
           </div>
         </div>
@@ -202,8 +198,12 @@ export default function CreatePost() {
         <div className="border-l border-slate-200 bg-white">
           <div className="p-6 space-y-6">
             <div className="pb-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900">Post Settings</h3>
-              <p className="text-sm text-slate-500 mt-1">Configure your post metadata</p>
+              <h3 className="text-lg font-semibold text-slate-900">
+                Post Settings
+              </h3>
+              <p className="text-sm text-slate-500 mt-1">
+                Configure your post metadata
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -218,7 +218,9 @@ export default function CreatePost() {
             </div>
 
             <div className="pt-4 border-t border-slate-200">
-              <h4 className="text-sm font-medium text-slate-700 mb-3">Publishing Info</h4>
+              <h4 className="text-sm font-medium text-slate-700 mb-3">
+                Publishing Info
+              </h4>
               <div className="space-y-2 text-sm text-slate-500">
                 <div className="flex justify-between">
                   <span>Word count:</span>

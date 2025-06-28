@@ -23,11 +23,8 @@ class SimpleHR {
 
   render() {
     this.wrapper = document.createElement("div");
-
-    // Create actual HR element instead of using innerHTML
     const hr = document.createElement("hr");
     hr.className = "my-4 border-t border-gray-300";
-
     this.wrapper.appendChild(hr);
     return this.wrapper;
   }
@@ -39,10 +36,12 @@ class SimpleHR {
   }
 }
 
-const EditorComponent = forwardRef((props, ref) => {
+const EditorComponent = forwardRef(({ formData = {}, onImageAdd }, ref) => {
   const editorRef = useRef(null);
   const editorHolderRef = useRef(null);
   const [isClient, setIsClient] = useState(false);
+  const imageCountRef = useRef(0);
+  const loggedImages = useRef(new Set());
 
   useImperativeHandle(ref, () => ({
     async save() {
@@ -86,23 +85,89 @@ const EditorComponent = forwardRef((props, ref) => {
           autofocus: true,
           placeholder: "Start writing your awesome content here...",
           tools: {
-            header: {
-              class: Header,
-              inlineToolbar: true,
-            },
-            list: {
-              class: List,
-              inlineToolbar: true,
-            },
+            header: { class: Header, inlineToolbar: true },
+            list: { class: List, inlineToolbar: true },
             quote: Quote,
             table: Table,
             image: {
-              class: ImageTool,
-              config: {
-                endpoints: {
-                  byFile: "/api/upload",
-                  byUrl: "http://localhost:5000/fetchUrl",
-                },
+              class: class {
+                static get toolbox() {
+                  return { title: "Image", icon: "🖼️" };
+                }
+
+                constructor({ data, api }) {
+                  this.api = api;
+                  this.data = data;
+                  this.wrapper = undefined;
+                }
+
+                render() {
+                  this.wrapper = document.createElement("div");
+
+                  const fileInput = document.createElement("input");
+                  fileInput.type = "file";
+                  fileInput.accept = "image/*";
+                  fileInput.style.display = "none";
+
+                  fileInput.addEventListener("change", async () => {
+                    const file = fileInput.files[0];
+                    if (!file) return;
+
+                    const slugInput = prompt(
+                      "Enter a custom slug (no extension)"
+                    );
+                    if (!slugInput) return alert("Slug is required!");
+
+                    const formData = new FormData();
+                    formData.append("image", file);
+                    formData.append("slug", slugInput);
+
+                    try {
+                      const res = await fetch("/api/upload", {
+                        method: "POST",
+                        body: formData,
+                      });
+
+                      const result = await res.json();
+                      if (result.success) {
+                        this.data = {
+                          file: {
+                            url: result.file.url,
+                            slug: result.file.slug,
+                          },
+                          caption: slugInput,
+                        };
+                        this._updateView();
+                      }
+                    } catch (err) {
+                      console.error("Image upload failed", err);
+                    }
+                  });
+
+                  const uploadBtn = document.createElement("button");
+                  uploadBtn.textContent = "Upload Image";
+                  uploadBtn.className =
+                    "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700";
+                  uploadBtn.onclick = () => fileInput.click();
+
+                  this.wrapper.appendChild(uploadBtn);
+                  this.wrapper.appendChild(fileInput);
+                  return this.wrapper;
+                }
+
+                _updateView() {
+                  this.wrapper.innerHTML = "";
+                  const img = document.createElement("img");
+                  img.src = this.data.file.url;
+                  img.alt = this.data.caption || "";
+                  img.className = "max-w-full rounded border";
+
+                  this.wrapper.appendChild(img);
+                }
+
+                save() {
+                  return this.data;
+                }
               },
             },
             marker: Marker,
@@ -135,8 +200,64 @@ const EditorComponent = forwardRef((props, ref) => {
         });
 
         editorRef.current = editor;
-      } catch (error) {
-        console.error("Error initializing EditorJS:", error);
+
+        // 🔍 Image tracking
+        const handleImg = (img) => {
+          const src = img.src;
+          if (src && !loggedImages.current.has(src)) {
+            imageCountRef.current += 1;
+            const index = imageCountRef.current;
+            loggedImages.current.add(src);
+            if (typeof onImageAdd === "function") {
+              onImageAdd({
+                src,
+                index,
+                field: {
+                  name: `img${index}`,
+                  label: `Image ${index} Slug`,
+                  type: "text",
+                  value: formData?.[`img${index}`] || "",
+                },
+              });
+            }
+          }
+        };
+
+        const observer = new MutationObserver((mutationsList) => {
+          for (const mutation of mutationsList) {
+            if (mutation.type === "childList") {
+              mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1 && node.querySelectorAll) {
+                  const imgs = node.querySelectorAll("img");
+                  imgs.forEach(handleImg);
+                }
+              });
+            }
+            if (
+              mutation.type === "attributes" &&
+              mutation.target.tagName === "IMG" &&
+              mutation.attributeName === "src"
+            ) {
+              handleImg(mutation.target);
+            }
+          }
+        });
+
+        if (editorHolderRef.current) {
+          observer.observe(editorHolderRef.current, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["src"],
+          });
+        }
+
+        setInterval(() => {
+          const imgs = editorHolderRef.current?.querySelectorAll("img") || [];
+          imgs.forEach(handleImg);
+        }, 1000);
+      } catch (err) {
+        console.error("Error initializing EditorJS:", err);
       }
     };
 
@@ -152,11 +273,8 @@ const EditorComponent = forwardRef((props, ref) => {
 
   if (!isClient) {
     return (
-      <div
-        className="bg-gray-50 p-4 rounded border flex items-center justify-center"
-        style={{ minHeight: "200px" }}
-      >
-        <div className="text-gray-500">Loading editor...</div>
+      <div className="bg-gray-50 p-4 rounded border text-center text-gray-500">
+        Loading editor...
       </div>
     );
   }

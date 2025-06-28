@@ -1,11 +1,13 @@
-import { NextResponse } from 'next/server';
-import cloudinary from '@/lib/cloudinary';
-import { Readable } from 'stream';
+import { NextResponse } from "next/server";
+import cloudinary from "@/lib/cloudinary";
+import { Readable } from "stream";
 
 export async function POST(req) {
   try {
     const data = await req.formData();
-    const file = data.get('image');
+    const file = data.get("image");
+    const slug = data.get("slug");
+    console.log(slug);
 
     if (!file) {
       return NextResponse.json({ success: 0, message: "No file uploaded" });
@@ -15,7 +17,13 @@ export async function POST(req) {
 
     const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: 'editorjs' },
+        {
+          folder: "editorjs",
+          public_id: slug,
+          use_filename: false,
+          unique_filename: false,
+          overwrite: true,
+        },
         (error, result) => {
           if (error) return reject(error);
           resolve(result);
@@ -25,14 +33,19 @@ export async function POST(req) {
       Readable.from(buffer).pipe(stream);
     });
 
+    console.log(result)
     return NextResponse.json({
       success: 1,
       file: {
         url: result.secure_url,
+        slug: result.public_id.split("/").pop(), // "job-banner"
       },
     });
   } catch (err) {
     console.error("Upload failed:", err);
-    return NextResponse.json({ success: 0, message: err.message }, { status: 500 });
+    return NextResponse.json(
+      { success: 0, message: err.message },
+      { status: 500 }
+    );
   }
 }
