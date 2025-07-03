@@ -42,10 +42,14 @@ const AdminSidebar = () => {
 
   const toggleSection = (section) => {
     if (!isCollapsed) {
-      setExpandedSections((prev) => ({
-        ...prev,
-        [section]: !prev[section],
-      }));
+      setExpandedSections((prev) => {
+        const isAlreadyOpen = prev[section];
+        // Close all, open only clicked one (unless already open, then toggle)
+        const newState = Object.fromEntries(
+          Object.keys(prev).map((key) => [key, false])
+        );
+        return { ...newState, [section]: !isAlreadyOpen };
+      });
     }
   };
 
@@ -92,62 +96,27 @@ const AdminSidebar = () => {
       id: "categories",
       label: "Categories",
       icon: FolderOpen,
-      expandable: true,
-      subItems: [
-        {
-          id: "all-categories",
-          label: "All Categories",
-          icon: Tag,
-          path: "/admin/categories",
-        },
-        {
-          id: "add-category",
-          label: "Add Category",
-          icon: PlusCircle,
-          path: "/admin/categories/new",
-        },
-      ],
+      path: "/admin/categories",
     },
     {
       id: "organization",
       label: "Organization",
       icon: Building2,
-      expandable: true,
-      subItems: [
-        {
-          id: "all-org",
-          label: "All Organization",
-          icon: Tag,
-          path: "/admin/organization",
-        },
-        {
-          id: "add-org",
-          label: "Add Organization",
-          icon: PlusCircle,
-          path: "/admin/organization/new",
-        },
-      ],
+      path: "/admin/organization",
     },
-    {
-      id: "manage",
-      label: "Manage Data",
-      icon: LayoutDashboard, // (more suitable for layout CMS section)
-      expandable: true,
-      subItems: [
+    
         {
           id: "post-type",
           label: "Post Type",
           icon: Shapes,
-          path: "/admin/layout/post-type",
+          path: "/admin/post-type",
         },
         {
           id: "extra-fields",
           label: "Extra Fields",
           icon: Puzzle,
-          path: "/admin/layout/extra-fields",
+          path: "/admin/extra-fields",
         },
-      ],
-    },
     {
       id: "media",
       label: "Media Library",
@@ -214,7 +183,7 @@ const AdminSidebar = () => {
           className={`
             flex items-center justify-between ${
               isCollapsed ? "px-4 justify-center" : "px-6"
-            } py-3 cursor-pointer transition-all duration-200 border-r-4 relative group
+            } py-3 cursor-pointer transition-all duration-300 border-r-4 relative group
             ${
               isActive
                 ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg border-white"
@@ -254,7 +223,7 @@ const AdminSidebar = () => {
 
           {/* Tooltip for collapsed state */}
           {isCollapsed && (
-            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 border border-gray-700">
+            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 border border-gray-700">
               {item.label}
               {item.badge && (
                 <span className="ml-2 bg-red-500 text-xs px-1 py-0.5">
@@ -277,7 +246,7 @@ const AdminSidebar = () => {
                   key={subItem.id}
                   className="transform transition-all duration-300 ease-in-out"
                   style={{
-                    transitionDelay: isExpanded ? `${index * 50}ms` : "0ms",
+                    transitionDelay: isExpanded ? `${index * 0}ms` : "0ms",
                   }}
                 >
                   <MenuItem item={subItem} isSubItem={true} />
@@ -292,52 +261,10 @@ const AdminSidebar = () => {
 
   return (
     <div
-      className={`h-screen ${
+      className={`h-max min-h-screen  ${
         isCollapsed ? "w-16" : "w-64"
       } bg-gray-900 border-r border-gray-800 flex flex-col shadow-xl transition-all duration-300`}
     >
-      <style jsx>{`
-        /* Custom scrollbar styles */
-        .scrollbar-thin {
-          scrollbar-width: thin;
-          scrollbar-color: #4b5563 #1f2937;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: #1f2937;
-          border-radius: 0;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: #4b5563;
-          border-radius: 3px;
-          transition: background-color 0.2s ease;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: #6b7280;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-corner {
-          background: #1f2937;
-        }
-
-        /* Hide scrollbar when collapsed */
-        ${isCollapsed
-          ? `
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 0px;
-        }
-        .scrollbar-thin {
-          scrollbar-width: none;
-        }
-        `
-          : ""}
-      `}</style>
       {/* Header */}
       <div className="p-4 border-b border-gray-800 relative">
         <div className="flex items-center justify-between">
@@ -356,7 +283,7 @@ const AdminSidebar = () => {
           </div>
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors duration-200"
+            className="p-1 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors duration-300"
           >
             {isCollapsed ? (
               <ChevronRight size={20} />
@@ -368,7 +295,7 @@ const AdminSidebar = () => {
       </div>
 
       {/* Main Navigation */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500">
+      <div className="flex-1 scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500">
         <div>
           {menuItems.map((item) => (
             <MenuItem key={item.id} item={item} />
@@ -393,7 +320,7 @@ const AdminSidebar = () => {
               <User size={16} className="text-gray-300" />
             </div>
             {/* Tooltip for collapsed user */}
-            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 border border-gray-700">
+            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 border border-gray-700">
               John Doe - Admin
             </div>
           </div>

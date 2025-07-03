@@ -1,18 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import InputComponent from "@/app/components/InputComponent";
 import usePostTypes from "@/hook/usePostTypes";
 import useCategories from "@/hook/useCategories";
 import useOrganizations from "@/hook/useOrg";
 import dynamic from "next/dynamic";
+import { generateSlug } from "@/lib/generateSlug";
+import useExtrafields from "@/hook/useExtraFields";
 
 const EditorComponent = dynamic(
   () => import("@/app/components/EditorComponent"),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
 
 export default function CreatePost() {
@@ -20,16 +20,15 @@ export default function CreatePost() {
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("draft");
   const [isLoading, setIsLoading] = useState(false);
-  const [extraFields, setExtraFields] = useState({});
   const [formData, setFormData] = useState({});
-  const [dynamicImageFields, setDynamicImageFields] = useState([]);
-  console.log("dynamicImageFields",dynamicImageFields);
   const { categories } = useCategories({ all: true });
   const categoryOption = categories?.map((data) => ({
     label: data.name,
     value: data._id,
   }));
-
+  const [slug, setSlug] = useState("");
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [isEditingSlug, setIsEditingSlug] = useState(false);
   const { organization } = useOrganizations();
   const orgOption = organization?.map((data) => ({
     label: data.name,
@@ -42,6 +41,25 @@ export default function CreatePost() {
     value: type._id,
   }));
 
+  const { extraFields } = useExtrafields();
+  const [filteredExtraFields, setFilteredExtraFields] = useState([]);
+
+  const extractedExtraFields = {};
+  filteredExtraFields?.forEach((field) => {
+    extractedExtraFields[field.name] = formData[field.name] || "";
+  });
+
+  useEffect(() => {
+    if (formData.type) {
+      const matchedFields = extraFields.filter(
+        (field) => field.postType?._id === formData.type
+      );
+      setFilteredExtraFields(matchedFields);
+    } else {
+      setFilteredExtraFields([]);
+    }
+  }, [formData.type, extraFields]);
+
   const router = useRouter();
 
   const handleSave = async (finalStatus) => {
@@ -53,16 +71,17 @@ export default function CreatePost() {
     setIsLoading(true);
     try {
       const contentRaw = await editorRef.current?.save();
-      const content = contentRaw;
 
       const postData = {
         type: formData.type,
+        slug,
         extraFields,
         title: title.trim(),
         category: formData.category,
         organization: formData.organization,
         status: finalStatus,
-        content,
+        content: contentRaw,
+        extraFields: extractedExtraFields,
       };
 
       const res = await fetch("/api/posts", {
@@ -70,11 +89,12 @@ export default function CreatePost() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "same-origin",
         body: JSON.stringify(postData),
       });
 
       const data = await res.json();
-
+      console.log(data)
       if (data.success) {
         router.push("/admin/posts");
       } else {
@@ -128,6 +148,15 @@ export default function CreatePost() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleTitleChange = (e) => {
+    const value = e.target.value;
+    setTitle(value);
+
+    if (!slugManuallyEdited) {
+      setSlug(generateSlug(value));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header Bar */}
@@ -138,7 +167,7 @@ export default function CreatePost() {
               Create New Post
             </h1>
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 ${getStatusColor(status)}`}></div>
+              <div className={`w-2 h-2 ${getStatusColor(status)}`} />
               <span className="text-sm font-medium text-slate-600 capitalize">
                 {status}
               </span>
@@ -152,7 +181,6 @@ export default function CreatePost() {
             >
               {isLoading ? "Saving..." : "Save Draft"}
             </button>
-
             <button
               onClick={() => handleSave("published")}
               disabled={isLoading || !title.trim()}
@@ -164,39 +192,30 @@ export default function CreatePost() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px]">
+      {/* Layout Grid */}
+      <div className="grid min-h-[calc(100vh-78px)] grid-cols-1 lg:grid-cols-[1fr_320px]">
         {/* Main Content */}
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8">
               <input
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full text-4xl font-bold text-slate-900 border-0 border-b-2 border-slate-200 bg-transparent py-4 focus:outline-none focus:border-slate-900 transition-colors placeholder:text-slate-400"
-                placeholder="Enter your post title..."
+                onChange={handleTitleChange}
+                className="w-full text-2xl font-bold text-slate-900 border-0 border-b border-slate-200 bg-transparent py-1 px-4 focus:outline-none focus:border-slate-900 transition-colors placeholder:text-slate-400"
+                placeholder="Enter Post Title"
               />
             </div>
 
             <div className="bg-white border border-slate-200 shadow-sm py-4">
-              <EditorComponent
-                ref={editorRef}
-                onImageAdd={({ src, index, field }) => {
-                  console.log(`📸 Image ${index} added: ${src}`);
-                  setDynamicImageFields((prev) => {
-                    const exists = prev.find((f) => f.name === field.name);
-                    if (exists) return prev;
-                    return [...prev, field];
-                  });
-                }}
-              />
+              <EditorComponent ref={editorRef} />
             </div>
           </div>
         </div>
 
         {/* Sidebar */}
-        <div className="border-l border-slate-200 bg-white">
-          <div className="p-6 space-y-6">
+        <div className="border-l border-slate-200 bg-white flex flex-col max-h-full">
+          <div className="p-6 space-y-6 overflow-y-auto flex-1">
             <div className="pb-4 border-b border-slate-200">
               <h3 className="text-lg font-semibold text-slate-900">
                 Post Settings
@@ -207,6 +226,58 @@ export default function CreatePost() {
             </div>
 
             <div className="space-y-2">
+              <div className="mt-2 flex items-center gap-3">
+                {!isEditingSlug ? (
+                  <>
+                    <div className="flex items-baseline gap-1">
+                      <p className="font-mono text-sm text-gray-700">
+                        <span className="text-blue-600 text-sm">
+                          {slug || "no title"}
+                        </span>
+                      </p>
+                      <button
+                        onClick={() => setIsEditingSlug(true)}
+                        className="text-xs text-blue-500 hover:underline"
+                      >
+                        ✏️ Edit
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      value={slug}
+                      onChange={(e) => {
+                        setSlug(e.target.value);
+                        setSlugManuallyEdited(true);
+                      }}
+                      className="text-sm font-mono px-2 py-1 border border-slate-300 rounded focus:outline-none focus:ring focus:border-blue-500"
+                    />
+                    <button
+                      onClick={() => {
+                        setIsEditingSlug(false);
+                        setSlugManuallyEdited(true);
+                      }}
+                      className="text-xs text-green-500 hover:underline"
+                    >
+                      ✅ Done
+                    </button>
+                    <button
+                      onClick={() => {
+                        const newSlug = generateSlug(title);
+                        setSlug(newSlug);
+                        setSlugManuallyEdited(false);
+                        setIsEditingSlug(false);
+                      }}
+                      className="text-xs text-red-500 hover:underline"
+                    >
+                      🔁 Reset
+                    </button>
+                  </>
+                )}
+              </div>
+
               {formFields.map((field) => (
                 <InputComponent
                   key={field.name}
@@ -215,6 +286,29 @@ export default function CreatePost() {
                   onChange={handleInputChange}
                 />
               ))}
+
+              {filteredExtraFields.length > 0 && (
+                <>
+                  <h4 className="text-sm font-semibold text-slate-700 mt-6">
+                    Extra Fields
+                  </h4>
+                  {filteredExtraFields.map((field) => (
+                    <InputComponent
+                      key={field._id}
+                      field={{
+                        name: field.name,
+                        label: field.label,
+                        type: field.fieldType,
+                        required: field.required,
+                        options: field.options,
+                        placeholder: field.placeholder,
+                      }}
+                      value={formData[field.name] || ""}
+                      onChange={handleInputChange}
+                    />
+                  ))}
+                </>
+              )}
             </div>
 
             <div className="pt-4 border-t border-slate-200">

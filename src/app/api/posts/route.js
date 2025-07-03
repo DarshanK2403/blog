@@ -3,22 +3,19 @@ import Post from "@/lib/models/Post"; // your mongoose Post model
 import PostType from "@/lib/models/PostType";
 import Organization from "@/lib/models/Organization";
 import Category from "@/lib/models/Category";
-// Generate slug function
-const generateSlug = (title) => {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .substring(0, 100);
-};
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function POST(request) {
+  const user = requireAdmin(request);
+  if (user instanceof Response) return user;
+
   try {
     await dbConnect();
 
     const body = await request.json();
     const {
       title,
+      slug,
       type,
       content,
       category,
@@ -30,6 +27,7 @@ export async function POST(request) {
     const missingFields = [];
 
     if (!title?.trim()) missingFields.push("Title");
+    if (!slug?.trim()) missingFields.push("Slug");
     if (!type) missingFields.push("Type");
     if (!content) missingFields.push("Content");
     if (!category?.trim()) missingFields.push("Category");
@@ -46,16 +44,17 @@ export async function POST(request) {
       );
     }
 
-    let slug = generateSlug(title);
+    let finalSlug = slug.trim();
 
-    const existing = await Post.findOne({ slug });
+    // 🔁 Ensure unique slug (append random number if conflict)
+    const existing = await Post.findOne({ slug: finalSlug });
     if (existing) {
-      slug = `${slug}-${Math.floor(Math.random() * 10000)}`;
+      finalSlug = `${finalSlug}-${Math.floor(Math.random() * 10000)}`;
     }
 
     const newPost = new Post({
       title,
-      slug,
+      slug: finalSlug,
       postType: type,
       content,
       category,

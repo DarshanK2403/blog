@@ -90,6 +90,10 @@ const AllPost = () => {
     );
   };
 
+  const EditPostPage = (slug) => {
+    router.push(`/admin/posts/edit/${slug}`);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -142,7 +146,9 @@ const AllPost = () => {
             >
               <option value="All">ALL</option>
               {postTypes.map((data) => (
-                  <option key={data.slug} value={data.slug}>{data.displayName}</option>
+                <option key={data.slug} value={data.slug}>
+                  {data.displayName}
+                </option>
               ))}
             </select>
 
@@ -261,6 +267,7 @@ const AllPost = () => {
                               <Eye size={14} />
                             </button>
                             <button
+                              onClick={() => EditPostPage(post.slug)}
                               className="text-gray-600 hover:text-gray-900 p-1"
                               title="Edit"
                             >

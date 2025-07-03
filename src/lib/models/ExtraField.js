@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const extraFieldSchema = new mongoose.Schema(
   {
-    sectionId: {
+    postType: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Section",
+      ref: "PostType",
       required: true,
     },
     name: {
@@ -19,7 +19,7 @@ const extraFieldSchema = new mongoose.Schema(
     },
     fieldType: {
       type: String,
-      enum: ["text", "number", "textarea", "select", "multi-select", "radio", "checkbox", "multi-checkbox", "date"],
+      enum: ["text", "number", "textarea", "date"],
       default: "text",
     },
     options: [

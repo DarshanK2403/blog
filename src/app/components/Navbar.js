@@ -63,7 +63,7 @@ const Navbar = () => {
   return (
     <nav
       ref={navRef}
-      className="bg-gray-900 text-white shadow-md border-b-2 border-blue-600 sticky top-0 z-50"
+      className="bg-[#0D1B2A] text-[#FDFDFD] font-medium shadow-md border-b-2 border-blue-600 sticky top-0 z-50"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -171,7 +171,7 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button onClick={toggleMenu} className="text-gray-700">
+            <button onClick={toggleMenu} className="text-white">
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
@@ -190,17 +190,17 @@ const Navbar = () => {
             Home
           </Link>
           <div>
-            <h4 className="font-semibold text-sm text-gray-700 mt-2 mb-1">Jobs</h4>
+            <h4 className="font-semibold text-sm text-white mt-2 mb-1">Jobs</h4>
             {jobCategories.map((cat, idx) => (
-              <Link key={idx} href="#" className="block text-sm text-gray-600 py-0.5">
+              <Link key={idx} href="#" className="block text-sm text-gray-100 py-0.5">
                 {cat}
               </Link>
             ))}
           </div>
           <div>
-            <h4 className="font-semibold text-sm text-gray-700 mt-3 mb-1">Exams</h4>
+            <h4 className="font-semibold text-sm text-white mt-3 mb-1">Exams</h4>
             {examCategories.map((exam, idx) => (
-              <Link key={idx} href="#" className="block text-sm text-gray-600 py-0.5">
+              <Link key={idx} href="#" className="block text-sm text-gray-100 py-0.5">
                 {exam}
               </Link>
             ))}

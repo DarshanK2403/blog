@@ -2,9 +2,9 @@ import { Building } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-const Footer = () => {
+export default function Footer () {
   return (
-    <footer className="bg-gray-900 text-white py-10">
+    <footer className="bg-[#0D1B2A] text-[#FDFDFD] py-10 border-t-2 border-blue-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -82,5 +82,3 @@ const Footer = () => {
     </footer>
   );
 };
-
-export default Footer;

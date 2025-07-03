@@ -1,0 +1,72 @@
+.post {
+  font-family: system-ui, sans-serif;
+  color: #161718;
+  line-height: 1.7;
+  font-size: 1rem; /* base size, responsive base */
+  padding: 0.5rem; /* optional: prevent edge clipping on mobile */
+}
+
+.post h1,
+.post h2,
+.post h3 {
+  color: #111;
+  margin: 0.5rem 0;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.post p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.post ul {
+  padding-left: 0.5rem;
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+}
+
+.post ol {
+  padding-left: 0.5rem;
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+}
+
+.post li {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.post img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 1rem 0;
+  display: block;
+}
+
+.post a {
+  color: #2563eb; /* Tailwind blue-600 */
+  text-decoration: underline;
+}
+
+/* Optional: responsive font scaling */
+@media (min-width: 768px) {
+  .post {
+    font-size: 1.0625rem; /* 17px */
+  }
+
+  .post h1 {
+    font-size: 1.875rem; /* 30px */
+  }
+
+  .post h2 {
+    font-size: 1.5rem; /* 24px */
+  }
+
+  .post h3 {
+    font-size: 1.25rem; /* 20px */
+  }
+}

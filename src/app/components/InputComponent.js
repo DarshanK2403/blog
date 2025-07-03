@@ -116,6 +116,16 @@ export default function InputComponent({ field, value, onChange }) {
                 className="w-full border border-slate-300 text-gray-800 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
               />
             )}
+
+            {field.type === "date" && (
+              <input
+                type="date"
+                value={value || ""}
+                onChange={(e) => onChange(field.name, e.target.value)}
+                disabled={field.disabled}
+                className="w-full border border-slate-300 text-gray-800 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+              />
+            )}
           </>
         )}
 

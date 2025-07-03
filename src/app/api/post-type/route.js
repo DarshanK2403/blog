@@ -1,7 +1,11 @@
 import dbConnect from "@/lib/dbConnect";
 import PostType from "@/lib/models/PostType";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function POST(request) {
+   const user = requireAdmin(request);
+    if (user instanceof Response) return user;
+  
   await dbConnect();
 
   function toBoolean(value, defaultValue = false) {

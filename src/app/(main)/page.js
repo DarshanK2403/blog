@@ -22,23 +22,23 @@ const SkeletonSection = () => (
   </section>
 );
 
-const SkeletonUpdates = () => (
-  <section className="mb-4 animate-pulse">
-    <div className="h-6 w-48 bg-gray-200 rounded mb-4"></div>
-    <div className="space-y-4">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="bg-white rounded p-4 shadow">
-          <div className="h-4 w-3/4 bg-gray-200 rounded mb-2"></div>
-          <div className="h-3 w-1/2 bg-gray-200 rounded mb-2"></div>
-          <div className="flex gap-2">
-            <div className="h-4 w-20 bg-gray-200 rounded"></div>
-            <div className="h-4 w-24 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-);
+// const SkeletonUpdates = () => (
+//   <section className="mb-4 animate-pulse">
+//     <div className="h-6 w-48 bg-gray-200 rounded mb-4"></div>
+//     <div className="space-y-4">
+//       {Array.from({ length: 3 }).map((_, i) => (
+//         <div key={i} className="bg-white rounded p-4 shadow">
+//           <div className="h-4 w-3/4 bg-gray-200 rounded mb-2"></div>
+//           <div className="h-3 w-1/2 bg-gray-200 rounded mb-2"></div>
+//           <div className="flex gap-2">
+//             <div className="h-4 w-20 bg-gray-200 rounded"></div>
+//             <div className="h-4 w-24 bg-gray-200 rounded"></div>
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   </section>
+// );
 
 export default function Home() {
   const router = useRouter();
@@ -75,13 +75,6 @@ export default function Home() {
     });
   };
 
-  const getDaysLeft = (lastDate) => {
-    const today = new Date();
-    const deadline = new Date(lastDate);
-    const timeDiff = deadline.getTime() - today.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24));
-  };
-
   const getUpdateTypeColor = (type) => {
     const colors = {
       "Deadline Extension": "bg-yellow-100 text-yellow-800",
@@ -110,10 +103,10 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen max-w-4xl mx-auto gap-4 bg-gray-50 px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-h-screen max-w-4xl mx-auto gap-4 bg-gray-50 px-4 sm:px-6 lg:px-8 py-6">
         <SkeletonSection />
         <SkeletonSection />
-        <SkeletonUpdates />
+        {/* <SkeletonUpdates /> */}
       </div>
     );
   }
@@ -122,7 +115,7 @@ export default function Home() {
     <div className=" bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Section
-          title="Latest Jobs"
+          title="Latest Recruitment"
           items={homeData.latestJobs}
           onClick={(slug) => router.push(`/posts/${slug}`)}
           getDate={(item) => item?.extraFields?.lastDate}
@@ -130,26 +123,19 @@ export default function Home() {
           getOrg={(item) => item?.organization?.name}
           renderRight={(item) => (
             <>
-              <span className="text-sm font-medium text-gray-900">
-                {formatDate(item?.extraFields?.lastDate)}
-              </span>
-              <span
-                className={`text-sm ${
-                  getDaysLeft(item?.extraFields?.lastDate) <= 7
-                    ? "text-red-600 font-semibold"
-                    : getDaysLeft(item?.extraFields?.lastDate) <= 15
-                    ? "text-yellow-600 font-medium"
-                    : "text-green-600"
-                }`}
-              >
-                ({getDaysLeft(item?.extraFields?.lastDate)} days left)
+              <span className={`text-sm text-red-600 font-medium`}>
+                (<span className="text-nowrap">Last Date: </span>{" "}
+                <span className="text-nowrap">
+                  {item?.extraFields?.["last-date"] || "No Date"}
+                </span>
+                )
               </span>
             </>
           )}
         />
 
         <Section
-          title="Latest Results"
+          title="Result Updates"
           items={homeData.latestResults}
           onClick={(slug) => router.push(`/posts/${slug}`)}
           getTitle={(item) => item?.title}
@@ -162,10 +148,12 @@ export default function Home() {
         />
 
         <section className="mb-4">
+          {/* Heading row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Job Updates
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
+              Job Notifications
             </h2>
+
             <Link
               href="#"
               className="text-blue-600 text-sm hover:underline flex items-center"
@@ -173,37 +161,54 @@ export default function Home() {
               View All <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
-          <div className="space-y-4">
+
+          {/* Card list */}
+          <div className="space-y-4 w-full">
             {homeData.jobUpdates.map((update) => (
-              <div
+              <button
                 key={update._id}
-                className="bg-white rounded-md shadow-md p-4 hover:shadow-lg transition-shadow"
+                onClick={() => router.push(`/posts/${update.slug}`)}
+                className="w-full text-left"
               >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                  <div className="flex-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      <Bell className="h-4 w-4 text-blue-600" />
-                      {update?.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mt-1">
-                      {update?.extraFields?.description}
-                    </p>
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                      <span
-                        className={`px-2 py-1 rounded-full font-medium ${getUpdateTypeColor(
-                          update?.extraFields?.subject
-                        )}`}
-                      >
-                        {update?.extraFields?.subject}
-                      </span>
-                      <span className="text-gray-500">
-                        {formatDate(update?.date)}
-                      </span>
+                <div className="bg-white border border-gray-300 hover:bg-blue-50 transition-colors duration-200 w-full p-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    {/* Left block */}
+                    <div className="flex-1">
+                      {/* Title */}
+                      <h3 className="flex items-start gap-2 text-sm sm:text-lg font-semibold text-gray-900">
+                        <Bell className="h-4 w-4 text-blue-600 mt-[2px]" />
+                        <span className="line-clamp-2 break-words">
+                          {update.title}
+                        </span>
+                      </h3>
+
+                      {/* Description */}
+                      {update.extraFields?.description && (
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">
+                          {update.extraFields.description}
+                        </p>
+                      )}
+
+                      {/* Chips + date */}
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] sm:text-xs">
+                        <span
+                          className={`px-2 py-1 rounded-full font-medium ${getUpdateTypeColor(
+                            update.extraFields?.subject
+                          )}`}
+                        >
+                          {update.extraFields?.subject || "-"}
+                        </span>
+                        <span className="text-gray-500">
+                          {formatDate(update.createdAt)}
+                        </span>
+                      </div>
                     </div>
+
+                    {/* Arrow (hide on very small screens) */}
+                    <ArrowRight className="text-blue-600 hover:text-blue-700 w-5 h-5 hidden xs:block sm:block" />
                   </div>
-                  <ArrowRight className="text-blue-600 hover:text-blue-700 w-5 h-5 mt-1 sm:mt-0" />
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </section>
@@ -214,7 +219,8 @@ export default function Home() {
 
 function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
   return (
-    <section className="mb-4">
+    <section className="mb-5 mt-5">
+      {/* Heading + “view all” link */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{title}</h2>
         <Link
@@ -224,27 +230,34 @@ function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
           View All <ArrowRight className="ml-1 h-4 w-4" />
         </Link>
       </div>
+
+      {/* Table / list */}
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm sm:text-base">
+        <table className="min-w-full text-xs sm:text-sm md:text-base">
           <tbody className="divide-y divide-gray-200">
             {items.map((item) => (
               <tr
                 key={item._id}
-                className="hover:bg-blue-50 cursor-pointer transition-colors"
+                className="hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-300"
                 onClick={() => onClick(item.slug)}
               >
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex gap-1 items-center">
-                    <span className="font-medium text-gray-900 hover:text-blue-600">
+                {/* Title + Org */}
+                <td className="px-2 py-2">
+                  <div className="flex flex-col sm:flex-row gap-0.5 sm:gap-1">
+                    <span className="font-medium text-gray-900 hover:text-blue-600 truncate max-w-[14rem] sm:max-w-none">
                       {getTitle(item)}
                     </span>
-                    <span className="text-gray-500"> - </span>
-                    <span className="text-blue-600 font-medium">
+                    <span className="text-gray-500 hidden sm:inline"> – </span>
+                    <span className="text-blue-600 font-medium truncate max-w-[14rem] sm:max-w-none">
                       {getOrg(item)}
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right">{renderRight(item)}</td>
+
+                {/* Right‑side info */}
+                <td className="px-4 py-3 text-right text-xs sm:text-sm whitespace-nowrap">
+                  {renderRight(item)}
+                </td>
               </tr>
             ))}
           </tbody>

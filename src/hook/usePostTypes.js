@@ -9,7 +9,9 @@ export default function usePostTypes() {
   const fetchPostTypes = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/post-type");
+      const response = await fetch("/api/post-type", {
+        credentials: "same-origin",
+      });
       if (!response.ok) throw new Error("Failed to fetch");
       const data = await response.json();
       setPostTypes(data);

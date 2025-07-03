@@ -5,14 +5,14 @@ const nextConfig = {
   allowedDevOrigins: ["http://192.168.0.160:3000"],
 
   images: {
-    domains: ["res.cloudinary.com"], // ✅ For next/image support if needed
+    domains: ["res.cloudinary.com"],
   },
 
   async rewrites() {
     return [
       {
         source: "/img/:slug*",
-        destination: "/api/img/:slug*", // ✅ Rewrites short URLs to Cloudinary proxy route
+        destination: "/api/img/:slug*",
       },
     ];
   },

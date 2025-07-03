@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import EditorJsHtml from "editorjs-html";
+import styles from "./page.module.css";
+import { linkifyHtml } from "@/lib/linkifyHtml";
 
-// Custom parser: convert image URLs to use local slug format like /img/slug.png
 const customParsers = {
   image: (block) => {
     const slug = block.data?.file?.slug;
@@ -53,11 +54,13 @@ const PostDetailPage = () => {
           blocks,
         });
 
-        const htmlContent = Array.isArray(parsed)
+        const joinedHtml = Array.isArray(parsed)
           ? parsed.join("")
           : parsed?.toString?.() || "";
 
-        setHtml(htmlContent);
+        const htmlContent = linkifyHtml(joinedHtml);
+
+        setHtml(htmlContent); // ✅ Final content with auto-linked URLs
       } catch (error) {
         console.error("Error loading post:", error);
       }
@@ -67,15 +70,17 @@ const PostDetailPage = () => {
   }, [slug]);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      {post && <h1 className="text-3xl font-bold mb-4">{post.title}</h1>}
+    <div className="p-2 max-w-3xl mx-auto mt-5">
+      {post && <h1 className={styles.poster}>{post.title}</h1>}
 
       <div className="min-h-60 bg-white p-4">
         {!html ? (
-          <div className="text-center text-gray-500 py-10">Loading content...</div>
+          <div className="text-center text-gray-500 py-10">
+            Loading content...
+          </div>
         ) : (
           <div
-            className="prose max-w-none"
+            className={styles.post}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         )}

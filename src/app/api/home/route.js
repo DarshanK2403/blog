@@ -10,14 +10,13 @@ export async function GET() {
 
     const slugs = ["latest-jobs", "latest-results", "job-updates"];
 
-    // Fetch all required PostType IDs in one query
+    // Fetch all required PostType IDs
     const postTypes = await PostType.find({ slug: { $in: slugs } });
     const postTypeMap = {};
-    for (const pt of postTypes) {
+    postTypes.forEach((pt) => {
       postTypeMap[pt.slug] = pt._id;
-    }
+    });
 
-    // Fallback if a slug is missing
     const getTypeId = (slug) => postTypeMap[slug] || null;
 
     const [latestJobs, latestResults, jobUpdates] = await Promise.all([
@@ -28,22 +27,25 @@ export async function GET() {
             .sort({ createdAt: -1 })
             .limit(10)
         : [],
+
       getTypeId("latest-results")
-        ? Post.find({
-            postType: getTypeId("latest-results"),
-            status: "published",
-          })
+        ? Post.find({ postType: getTypeId("latest-results"), status: "published" })
             .select("title slug extraFields createdAt")
             .populate("organization", "name")
             .sort({ createdAt: -1 })
             .limit(10)
         : [],
-      getTypeId("job-updates")
-        ? Post.find({ postType: getTypeId("job-updates"), status: "published" })
-            .select("title slug extraFields createdAt")
-            .sort({ createdAt: -1 })
-            .limit(10)
-        : [],
+
+      (() => {
+        const ids = [getTypeId("latest-jobs"), getTypeId("latest-results")].filter(Boolean);
+        return ids.length
+          ? Post.find({ postType: { $in: ids }, status: "published" })
+              .select("title slug extraFields createdAt")
+              .populate("organization", "name")
+              .sort({ createdAt: -1 })
+              .limit(10)
+          : [];
+      })(),
     ]);
 
     return Response.json({
@@ -56,9 +58,6 @@ export async function GET() {
     });
   } catch (err) {
     console.error("API /home error:", err);
-    return Response.json(
-      { success: false, message: "Server Error" },
-      { status: 500 }
-    );
+    return Response.json({ success: false, message: "Server Error" }, { status: 500 });
   }
 }
