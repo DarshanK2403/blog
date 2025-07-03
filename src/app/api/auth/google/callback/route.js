@@ -24,9 +24,12 @@ export async function GET(request) {
   const access_token = tokenData.access_token;
 
   // ✅ Get Google Profile
-  const profileRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-    headers: { Authorization: `Bearer ${access_token}` },
-  });
+  const profileRes = await fetch(
+    "https://www.googleapis.com/oauth2/v3/userinfo",
+    {
+      headers: { Authorization: `Bearer ${access_token}` },
+    }
+  );
   const profile = await profileRes.json();
 
   await dbConnect();
@@ -53,8 +56,8 @@ export async function GET(request) {
     { expiresIn: "2h" }
   );
 
-  // ✅ Set Cookie
-  const response = NextResponse.redirect("http://localhost:3000/");
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const response = NextResponse.redirect(`${baseUrl}`);
   response.cookies.set("token", token, {
     httpOnly: true,
     secure: true,
