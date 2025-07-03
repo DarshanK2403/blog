@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   // Grab the domain from env, with a local fallback
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    process.env.NEXT_PUBLIC_BASE_URL;
 
   // Build the redirect URI dynamically
   const redirect_uri = `${baseUrl}/api/auth/google/callback`;

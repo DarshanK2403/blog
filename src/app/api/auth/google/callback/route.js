@@ -6,7 +6,7 @@ import dbConnect from "@/lib/dbConnect";
 export async function GET(request) {
   const code = new URL(request.url).searchParams.get("code");
 
-  if (!code) return NextResponse.redirect("http://localhost:3000");
+  if (!code) return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}`);
 
   const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -15,7 +15,7 @@ export async function GET(request) {
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
       code,
-      redirect_uri: "http://localhost:3000/api/auth/google/callback",
+      redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/google/callback`,
       grant_type: "authorization_code",
     }),
   });
@@ -39,7 +39,7 @@ export async function GET(request) {
   if (!user) {
     const allowedEmails = ["darshandeesa2403@gmail.com"]; // you can check DB too
     if (!allowedEmails.includes(profile.email)) {
-      return NextResponse.redirect("http://localhost:3000?error=unauthorized");
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}?error=unauthorized`);
     }
 
     user = await User.create({
