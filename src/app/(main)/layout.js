@@ -3,6 +3,7 @@ import "../../app/globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Sidebar from "../components/Sidebar";
+import { Analytics } from "@vercel/analytics/next";
 
 // Load custom fonts
 const geistSans = Geist({
@@ -45,6 +46,7 @@ export default function RootLayout({ children }) {
         <footer>
           <Footer />
         </footer>
+        <Analytics />
       </body>
     </html>
   );
