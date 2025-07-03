@@ -27,6 +27,7 @@
     "@editorjs/underline": "^1.2.1",
     "@editorjs/warning": "^1.4.1",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "editorjs-html": "^4.0.5",
