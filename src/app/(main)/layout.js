@@ -27,7 +27,7 @@ export const metadata = {
 // Root layout structure
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${geistSans.className} ${geistMono.className}`}>
       <body className="flex flex-col min-h-screen bg-[#F6F8FA]">
         <header className="sticky top-0 z-50 h-16">
           <Navbar />

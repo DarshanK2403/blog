@@ -1,92 +1,46 @@
-"use client";
+import PostClientView from "./PostClientView";
+import { notFound } from "next/navigation";
 
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import EditorJsHtml from "editorjs-html";
-import styles from "./page.module.css";
-import { linkifyHtml } from "@/lib/linkifyHtml";
+const BASE = process.env.NEXT_PUBLIC_BASE_URL;
+const FALL = `${BASE}/og-default.jpg`;
 
-const customParsers = {
-  image: (block) => {
-    const slug = block.data?.file?.slug;
-    const url = slug ? `/img/${slug}` : block.data?.file?.url;
-    const alt = block.data?.caption || "Image";
-    return `<img src="${url}" alt="${alt}" class="editorjs-image" />`;
-  },
-};
+async function getPost(slug) {
+  const res = await fetch(`${BASE}/api/posts/${slug}`, { cache: "no-store" });
+  if (!res.ok) return null;
+  const { data } = await res.json();
+  return data;
+}
 
-const editorJsHtml = EditorJsHtml(customParsers);
+/* ——— dynamic metadata ——— */
+export async function generateMetadata({ params }) {
+  const post = await getPost(params.slug);
+  if (!post) return { title: "Post not found · Yuva Gujarat" };
 
-const PostDetailPage = () => {
-  const params = useParams();
-  const slug = params?.slug;
-  const [post, setPost] = useState(null);
-  const [html, setHtml] = useState("");
+  const desc   = post.excerpt || post.title.slice(0, 150);
+  const banner = post.banner?.slug ? `${BASE}/img/${post.banner.slug}` : FALL;
 
-  useEffect(() => {
-    if (!slug) return;
+  return {
+    title:       `${post.title} · Yuva Gujarat`,
+    description: desc,
+    openGraph: {
+      title:       post.title,
+      description: desc,
+      url:         `${BASE}/posts/${post.slug}`,
+      type:        "article",
+      images:      [{ url: banner, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card:        "summary_large_image",
+      title:       post.title,
+      description: desc,
+      images:      [banner],
+    },
+  };
+}
 
-    const fetchPost = async () => {
-      try {
-        const res = await fetch(`/api/posts/${slug}`);
-        const data = await res.json();
-        const postData = data.data;
-        setPost(postData);
-
-        const blocks = postData?.content?.blocks?.map((block) => {
-          if (block.type === "image" && block.data?.file?.slug) {
-            return {
-              ...block,
-              data: {
-                ...block.data,
-                file: {
-                  ...block.data.file,
-                  url: `/img/${block.data.file.slug}`, // Rewrite to local proxy
-                },
-              },
-            };
-          }
-          return block;
-        });
-
-        const parsed = editorJsHtml.parse({
-          ...postData.content,
-          blocks,
-        });
-
-        const joinedHtml = Array.isArray(parsed)
-          ? parsed.join("")
-          : parsed?.toString?.() || "";
-
-        const htmlContent = linkifyHtml(joinedHtml);
-
-        setHtml(htmlContent); // ✅ Final content with auto-linked URLs
-      } catch (error) {
-        console.error("Error loading post:", error);
-      }
-    };
-
-    fetchPost();
-  }, [slug]);
-
-  return (
-    <div className="p-2 max-w-3xl mx-auto mt-5">
-      {post && <h1 className={styles.poster}>{post.title}</h1>}
-
-      <div className="min-h-60 bg-white p-4">
-        {!html ? (
-          <div className="text-center text-gray-500 py-10">
-            Loading content...
-          </div>
-        ) : (
-          <div
-            className={styles.post}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default PostDetailPage;
+/* ——— route component ——— */
+export default function Page({ params }) {
+  /*  ✅  Send only the slug to the browser.
+      PostClientView will fetch the data itself. */
+  return <PostClientView slug={params.slug} />;
+}
