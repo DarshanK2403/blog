@@ -22,6 +22,9 @@ export const metadata = {
   title: "Yuva Gujarat",
   description:
     "Get the latest government job notifications, exam results, and updates from SSC, UPSC, GPSC, Railway, Banking, Police, and more - curated for Gujarat's youth.",
+  icons: {
+    icon: "/yuva-gujarat.svg",
+  },
 };
 
 // Root layout structure
