@@ -26,6 +26,7 @@
     "@editorjs/table": "^2.4.5",
     "@editorjs/underline": "^1.2.1",
     "@editorjs/warning": "^1.4.1",
+    "@reduxjs/toolkit": "^2.8.2",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^3.0.2",
@@ -37,6 +38,7 @@
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
     "slugify": "^1.6.6"
   },
   "devDependencies": {

@@ -4,6 +4,7 @@ import PostType from "@/lib/models/PostType";
 import Organization from "@/lib/models/Organization";
 import Category from "@/lib/models/Category";
 import { requireAdmin } from "@/lib/requireAdmin";
+import mongoose from "mongoose";
 
 export async function POST(request) {
   const user = requireAdmin(request);
@@ -79,26 +80,54 @@ export async function GET(request) {
   try {
     await dbConnect();
 
+    /* ───────────── parse query ───────────── */
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
-    const postTypeParam = searchParams.get("postType");
-    const organizationParam = searchParams.get("organization");
 
+    //  Reject any unknown keys early
+    const allowedKeys = ["status", "postType", "organization"];
+    for (const key of searchParams.keys()) {
+      if (!allowedKeys.includes(key)) {
+        return Response.json(
+          { success: false, message: `Unknown query parameter “${key}”` },
+          { status: 400 }
+        );
+      }
+    }
+
+    /* ─────────── build Mongo query ─────────── */
     const query = {};
 
+    // status
+    const status = searchParams.get("status");
+    const allowedStatus = ["published", "draft", "archived"];
     if (status) {
+      if (!allowedStatus.includes(status)) {
+        return Response.json(
+          {
+            success: false,
+            message: `Invalid status “${status}”. Allowed: ${allowedStatus.join(
+              ", "
+            )}`,
+          },
+          { status: 400 }
+        );
+      }
       query.status = status;
     }
 
-    // Handle postType by slug or ObjectId
+    // postType (ObjectId or slug)
+    const postTypeParam = searchParams.get("postType");
     if (postTypeParam) {
-      if (/^[0-9a-fA-F]{24}$/.test(postTypeParam)) {
+      if (mongoose.isValidObjectId(postTypeParam)) {
         query.postType = postTypeParam;
       } else {
-        const type = await PostType.findOne({ slug: postTypeParam });
+        const type = await PostType.findOne({ slug: postTypeParam }).lean();
         if (!type) {
           return Response.json(
-            { success: false, message: "Invalid postType slug" },
+            {
+              success: false,
+              message: `postType “${postTypeParam}” not found`,
+            },
             { status: 404 }
           );
         }
@@ -106,22 +135,31 @@ export async function GET(request) {
       }
     }
 
+    // organization (ObjectId, slug, or name)
+    const organizationParam = searchParams.get("organization");
     if (organizationParam) {
-      const orgRegex = new RegExp(`^${organizationParam}$`, "i"); // case-insensitive
-      const org =
-        (await Organization.findOne({ slug: orgRegex })) ||
-        (await Organization.findOne({ name: orgRegex }));
+      if (mongoose.isValidObjectId(organizationParam)) {
+        query.organization = organizationParam;
+      } else {
+        const regex = new RegExp(`^${organizationParam}$`, "i"); // case‑insensitive
+        const org =
+          (await Organization.findOne({ slug: regex }).lean()) ||
+          (await Organization.findOne({ name: regex }).lean());
 
-      if (!org) {
-        return Response.json(
-          { success: false, message: "Invalid organization slug" },
-          { status: 404 }
-        );
+        if (!org) {
+          return Response.json(
+            {
+              success: false,
+              message: `organization “${organizationParam}” not found`,
+            },
+            { status: 404 }
+          );
+        }
+        query.organization = org._id;
       }
-
-      query.organization = org._id;
     }
 
+    /* ─────────── fetch & populate ─────────── */
     const posts = await Post.find(query)
       .sort({ createdAt: -1 })
       .populate("category")
@@ -131,7 +169,7 @@ export async function GET(request) {
 
     return Response.json({ success: true, data: posts }, { status: 200 });
   } catch (err) {
-    console.error("Error fetching posts:", err);
+    console.error("Error fetching posts →", err);
     return Response.json(
       { success: false, message: "Server Error" },
       { status: 500 }

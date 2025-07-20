@@ -52,25 +52,6 @@ blockquote {
   color: #666;
 }
 
-/* table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px 12px;
-  text-align: left;
-}
-
-th {
-  background-color: #f3f4f6;
-  font-weight: bold;
-} */
-
 .rich-content * {
   all: unset;
   display: revert;
@@ -99,4 +80,18 @@ th {
 .rich-content p {
   text-align: justify;
   color: black;
+}
+
+@media (max-width: 639px) {
+  h1 {
+    font-size: 1.5rem; /* 24px */
+  }
+
+  h2 {
+    font-size: 1.25rem; /* 20px */
+  }
+
+  h3 {
+    font-size: 1.1rem; /* ~17.6px */
+  }
 }

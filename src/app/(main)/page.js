@@ -1,9 +1,11 @@
 "use client";
 
 import { ArrowRight, Bell } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchHomeData } from "@/redux/homeSlice"; // ✅ adjust path if needed
 
 const SkeletonSection = () => (
   <section className="max-w-4xl mx-auto mb-4 animate-pulse">
@@ -24,29 +26,21 @@ const SkeletonSection = () => (
 
 export default function Home() {
   const router = useRouter();
-  const [isLoading, setLoading] = useState(true);
-  const [homeData, setHomeData] = useState({
-    latestJobs: [],
-    latestResults: [],
-    jobUpdates: [],
-  });
+  const dispatch = useDispatch();
+  const { latestJobs, latestResults, jobUpdates, loading, error } = useSelector(
+    (state) => state.home
+  );
 
   useEffect(() => {
-    const fetchHomeData = async () => {
-      try {
-        const res = await fetch("/api/home");
-        const data = await res.json();
-        if (data.success) {
-          setHomeData(data.data);
-        }
-      } catch (err) {
-        console.error("Error loading home data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHomeData();
-  }, []);
+    // Only fetch if not already loaded
+    if (
+      latestJobs.length === 0 &&
+      latestResults.length === 0 &&
+      jobUpdates.length === 0
+    ) {
+      dispatch(fetchHomeData());
+    }
+  }, [dispatch]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -83,42 +77,39 @@ export default function Home() {
     return colors[type] || "bg-gray-100 text-gray-800";
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="max-h-screen max-w-4xl mx-auto gap-4 bg-gray-50 px-4 sm:px-6 lg:px-8 py-6">
         <SkeletonSection />
         <SkeletonSection />
-        {/* <SkeletonUpdates /> */}
       </div>
     );
   }
 
   return (
-    <div className=" bg-white">
+    <div className="bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Section
           title="Latest Recruitment"
-          items={homeData.latestJobs}
+          items={latestJobs}
           onClick={(slug) => router.push(`/posts/${slug}`)}
           getDate={(item) => item?.extraFields?.lastDate}
           getTitle={(item) => item?.title}
           getOrg={(item) => item?.organization?.name}
           renderRight={(item) => (
-            <>
-              <span className={`text-sm text-red-600 font-medium`}>
-                (<span className="text-nowrap">Last Date: </span>{" "}
-                <span className="text-nowrap">
-                  {item?.extraFields?.["last-date"] || "No Date"}
-                </span>
-                )
+            <span className={`text-sm text-red-600 font-medium`}>
+              (<span className="text-nowrap">Last Date: </span>{" "}
+              <span className="text-nowrap">
+                {item?.extraFields?.["last-date"] || "No Date"}
               </span>
-            </>
+              )
+            </span>
           )}
         />
 
         <Section
           title="Result Updates"
-          items={homeData.latestResults}
+          items={latestResults}
           onClick={(slug) => router.push(`/posts/${slug}`)}
           getTitle={(item) => item?.title}
           getOrg={(item) => item?.organization?.name}
@@ -130,49 +121,40 @@ export default function Home() {
         />
 
         <section className="mb-4">
-          {/* Heading row */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
+          <div className="flex flex-row flex-wrap items-center justify-between gap-2 mb-2">
+            <h2 className="text-base sm:text-xl font-bold text-gray-900">
               Job Notifications
             </h2>
-
             <Link
               href="#"
-              className="text-blue-600 text-sm hover:underline flex items-center"
+              className="text-sm sm:text-base text-blue-600 hover:underline flex items-center"
             >
               View All <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
 
-          {/* Card list */}
           <div className="space-y-4 w-full">
-            {homeData.jobUpdates.map((update) => (
+            {jobUpdates.map((update) => (
               <button
                 key={update._id}
                 onClick={() => router.push(`/posts/${update.slug}`)}
                 className="w-full text-left"
               >
-                <div className="bg-white border border-gray-300 hover:bg-blue-50 transition-colors duration-200 w-full p-4">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    {/* Left block */}
+                <div className="border-l-4 rounded-md border-blue-600 bg-white p-4 shadow-sm hover:shadow-md transition">
+                  <div className="flex justify-between items-start sm:items-center gap-3">
                     <div className="flex-1">
-                      {/* Title */}
-                      <h3 className="flex items-start gap-2 text-sm sm:text-lg font-semibold text-gray-900">
-                        <Bell className="h-4 w-4 text-blue-600 mt-[2px]" />
-                        <span className="line-clamp-2 break-words">
-                          {update.title}
-                        </span>
+                      <h3 className="font-semibold text-sm sm:text-base text-gray-800 flex items-center gap-2">
+                        <Bell className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span className="line-clamp-2">{update.title}</span>
                       </h3>
 
-                      {/* Description */}
                       {update.extraFields?.description && (
                         <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">
                           {update.extraFields.description}
                         </p>
                       )}
 
-                      {/* Chips + date */}
-                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] sm:text-xs">
+                      <div className="mt-2 flex flex-wrap gap-2 text-xs">
                         <span
                           className={`px-2 py-1 rounded-full font-medium ${getUpdateTypeColor(
                             update.extraFields?.subject
@@ -186,8 +168,7 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Arrow (hide on very small screens) */}
-                    <ArrowRight className="text-blue-600 hover:text-blue-700 w-5 h-5 hidden xs:block sm:block" />
+                    <ArrowRight className="text-blue-600 hover:text-blue-700 w-5 h-5 hidden sm:block" />
                   </div>
                 </div>
               </button>
@@ -202,18 +183,18 @@ export default function Home() {
 function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
   return (
     <section className="mb-5 mt-5">
-      {/* Heading + “view all” link */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{title}</h2>
+      <div className="flex flex-row flex-wrap items-center justify-between gap-2 mb-2">
+        <h2 className="text-base sm:text-xl font-bold text-gray-900">
+          {title}
+        </h2>
         <Link
           href="#"
-          className="text-blue-600 text-sm hover:underline flex items-center"
+          className="text-sm sm:text-base text-blue-600 hover:underline flex items-center"
         >
           View All <ArrowRight className="ml-1 h-4 w-4" />
         </Link>
       </div>
 
-      {/* Table / list */}
       <div className="overflow-x-auto">
         <table className="min-w-full text-xs sm:text-sm md:text-base">
           <tbody className="divide-y divide-gray-200">
@@ -223,22 +204,33 @@ function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
                 className="hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-300"
                 onClick={() => onClick(item.slug)}
               >
-                {/* Title + Org */}
-                <td className="px-2 py-2">
-                  <div className="flex flex-col sm:flex-row gap-0.5 sm:gap-1">
-                    <span className="font-medium text-gray-900 hover:text-blue-600 truncate max-w-[14rem] sm:max-w-none">
+                <td className="px-2 py-2 w-full">
+                  <div className="hidden sm:flex flex-row justify-between items-center gap-2">
+                    <div className="flex gap-1">
+                      <span className="font-medium font-sans text-gray-900 hover:text-blue-600 truncate">
+                        {getTitle(item)}
+                      </span>
+                      <span className="text-blue-600 font-medium truncate max-w-[14rem]">
+                        {/* {getOrg(item)} */}
+                      </span>
+                    </div>
+                    <div className="text-sm text-right whitespace-nowrap">
+                      {renderRight(item)}
+                    </div>
+                  </div>
+                  <div className="flex sm:hidden flex-col gap-0.5">
+                    <span className="font-medium text-gray-900 hover:text-blue-600 truncate">
                       {getTitle(item)}
                     </span>
-                    <span className="text-gray-500 hidden sm:inline"> – </span>
-                    <span className="text-blue-600 font-medium truncate max-w-[14rem] sm:max-w-none">
-                      {getOrg(item)}
-                    </span>
+                    <div className="flex justify-between items-center text-xs text-gray-600">
+                      <span className="text-blue-600 font-medium truncate">
+                        {getOrg(item)}
+                      </span>
+                      <span className="text-gray-500 whitespace-nowrap">
+                        {renderRight(item)}
+                      </span>
+                    </div>
                   </div>
-                </td>
-
-                {/* Right‑side info */}
-                <td className="px-4 py-3 text-right text-xs sm:text-sm whitespace-nowrap">
-                  {renderRight(item)}
                 </td>
               </tr>
             ))}

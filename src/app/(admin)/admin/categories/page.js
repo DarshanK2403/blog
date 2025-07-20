@@ -21,12 +21,15 @@ export default function CategoriesPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { categories, pagination, isLoading } = useCategory({
-    page: currentPage,
+    page: searchTerm ? 1 : currentPage,
+    all: !!searchTerm,
+    searchTerm,
   });
 
   const filteredCategories = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+
     let filtered = categories.filter((category) => {
-      const term = searchTerm.toLowerCase();
       return (
         category.name.toLowerCase().includes(term) ||
         category.description?.toLowerCase().includes(term) ||
@@ -76,7 +79,7 @@ export default function CategoriesPage() {
           </div>
           <button
             className="px-4 py-2 bg-gray-900 text-white hover:bg-gray-800 hover:cursor-pointer"
-            onClick={() => router.push("/categories/new")}
+            onClick={() => router.push("/admin/categories/new")}
           >
             + Add Category
           </button>
@@ -154,8 +157,7 @@ export default function CategoriesPage() {
               </tbody>
             </table>
 
-            {/* Pagination */}
-            {pagination?.totalPages > 1 && (
+            {pagination?.totalPages > 1 && !searchTerm && (
               <div className="flex justify-center mt-6 gap-2">
                 <button
                   onClick={() => setCurrentPage(1)}

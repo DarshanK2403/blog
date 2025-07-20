@@ -261,7 +261,7 @@ const AdminSidebar = () => {
 
   return (
     <div
-      className={`h-max min-h-screen  ${
+      className={`h-full ${
         isCollapsed ? "w-16" : "w-64"
       } bg-gray-900 border-r border-gray-800 flex flex-col shadow-xl transition-all duration-300`}
     >
