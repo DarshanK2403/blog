@@ -20,8 +20,9 @@ const geistMono = Geist_Mono({
 
 // Metadata
 export const metadata = {
-  title: "Admin Panel",
+  title: "Admin Panel | Yuva Gujarat",
   description: "Only for Admins",
+  icons: { icon: "/yuva-gujarat.png" },
 };
 
 export default async function AdminLayout({ children }) {
@@ -38,7 +39,7 @@ export default async function AdminLayout({ children }) {
     redirect("/");
   }
   return (
-     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
         {/* 1️⃣  lock the whole flex row to exactly 100 vh */}
         <div className="flex h-screen">
@@ -48,9 +49,7 @@ export default async function AdminLayout({ children }) {
           </aside>
 
           {/* 3️⃣  main: it’s the ONLY place allowed to scroll */}
-          <main className="flex-1 overflow-y-auto bg-gray-100">
-            {children}
-          </main>
+          <main className="flex-1 overflow-y-auto bg-gray-100">{children}</main>
         </div>
       </body>
     </html>

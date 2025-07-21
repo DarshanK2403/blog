@@ -1,8 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import Post from "@/lib/models/Post";
 import PostType from "@/lib/models/PostType";
-import Category from "@/lib/models/Category";
-import Organization from "@/lib/models/Organization";
 
 export async function GET() {
   try {
@@ -10,51 +8,35 @@ export async function GET() {
 
     const slugs = ["latest-jobs", "latest-results", "job-updates"];
 
-    // Fetch all required PostType IDs
+    // Fetch all needed postType slugs in one go
     const postTypes = await PostType.find({ slug: { $in: slugs } });
-    const postTypeMap = {};
-    postTypes.forEach((pt) => {
-      postTypeMap[pt.slug] = pt._id;
-    });
+    const postTypeMap = Object.fromEntries(postTypes.map(pt => [pt.slug, pt._id]));
 
-    const getTypeId = (slug) => postTypeMap[slug] || null;
+    // Helper to fetch posts
+    const fetchPosts = (postTypeId) =>
+      Post.find({ postType: postTypeId, status: "published" })
+        .select("title slug extraFields createdAt")
+        .populate("organization", "name")
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean(); // for faster read-only access
 
-    const [latestJobs, latestResults, jobUpdates] = await Promise.all([
-      getTypeId("latest-jobs")
-        ? Post.find({ postType: getTypeId("latest-jobs"), status: "published" })
-            .select("title slug extraFields createdAt")
-            .populate("organization", "name")
-            .sort({ createdAt: -1 })
-            .limit(10)
-        : [],
+    const latestJobsPromise = postTypeMap["latest-jobs"] ? fetchPosts(postTypeMap["latest-jobs"]) : [];
+    const latestResultsPromise = postTypeMap["latest-results"] ? fetchPosts(postTypeMap["latest-results"]) : [];
 
-      getTypeId("latest-results")
-        ? Post.find({ postType: getTypeId("latest-results"), status: "published" })
-            .select("title slug extraFields createdAt")
-            .populate("organization", "name")
-            .sort({ createdAt: -1 })
-            .limit(10)
-        : [],
-
-      (() => {
-        const ids = [getTypeId("latest-jobs"), getTypeId("latest-results")].filter(Boolean);
-        return ids.length
-          ? Post.find({ postType: { $in: ids }, status: "published" })
-              .select("title slug extraFields createdAt")
-              .populate("organization", "name")
-              .sort({ createdAt: -1 })
-              .limit(10)
-          : [];
-      })(),
+    // Job updates = latest from both jobs + results (already fetched above)
+    const [latestJobs, latestResults] = await Promise.all([
+      latestJobsPromise,
+      latestResultsPromise,
     ]);
+
+    const jobUpdates = [...latestJobs, ...latestResults]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 10); // merge & trim to latest 10
 
     return Response.json({
       success: true,
-      data: {
-        latestJobs,
-        latestResults,
-        jobUpdates,
-      },
+      data: { latestJobs, latestResults, jobUpdates },
     });
   } catch (err) {
     console.error("API /home error:", err);

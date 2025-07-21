@@ -47,7 +47,6 @@ export async function POST(request) {
 
     let finalSlug = slug.trim();
 
-    // 🔁 Ensure unique slug (append random number if conflict)
     const existing = await Post.findOne({ slug: finalSlug });
     if (existing) {
       finalSlug = `${finalSlug}-${Math.floor(Math.random() * 10000)}`;
@@ -80,10 +79,8 @@ export async function GET(request) {
   try {
     await dbConnect();
 
-    /* ───────────── parse query ───────────── */
     const { searchParams } = new URL(request.url);
 
-    //  Reject any unknown keys early
     const allowedKeys = ["status", "postType", "organization"];
     for (const key of searchParams.keys()) {
       if (!allowedKeys.includes(key)) {
@@ -94,10 +91,9 @@ export async function GET(request) {
       }
     }
 
-    /* ─────────── build Mongo query ─────────── */
     const query = {};
 
-    // status
+    // Filter: status
     const status = searchParams.get("status");
     const allowedStatus = ["published", "draft", "archived"];
     if (status) {
@@ -105,9 +101,7 @@ export async function GET(request) {
         return Response.json(
           {
             success: false,
-            message: `Invalid status “${status}”. Allowed: ${allowedStatus.join(
-              ", "
-            )}`,
+            message: `Invalid status “${status}”. Allowed: ${allowedStatus.join(", ")}`,
           },
           { status: 400 }
         );
@@ -115,7 +109,7 @@ export async function GET(request) {
       query.status = status;
     }
 
-    // postType (ObjectId or slug)
+    // Filter: postType
     const postTypeParam = searchParams.get("postType");
     if (postTypeParam) {
       if (mongoose.isValidObjectId(postTypeParam)) {
@@ -124,10 +118,7 @@ export async function GET(request) {
         const type = await PostType.findOne({ slug: postTypeParam }).lean();
         if (!type) {
           return Response.json(
-            {
-              success: false,
-              message: `postType “${postTypeParam}” not found`,
-            },
+            { success: false, message: `postType “${postTypeParam}” not found` },
             { status: 404 }
           );
         }
@@ -135,23 +126,20 @@ export async function GET(request) {
       }
     }
 
-    // organization (ObjectId, slug, or name)
+    // Filter: organization
     const organizationParam = searchParams.get("organization");
     if (organizationParam) {
       if (mongoose.isValidObjectId(organizationParam)) {
         query.organization = organizationParam;
       } else {
-        const regex = new RegExp(`^${organizationParam}$`, "i"); // case‑insensitive
+        const regex = new RegExp(`^${organizationParam}$`, "i");
         const org =
           (await Organization.findOne({ slug: regex }).lean()) ||
           (await Organization.findOne({ name: regex }).lean());
 
         if (!org) {
           return Response.json(
-            {
-              success: false,
-              message: `organization “${organizationParam}” not found`,
-            },
+            { success: false, message: `organization “${organizationParam}” not found` },
             { status: 404 }
           );
         }
@@ -159,7 +147,6 @@ export async function GET(request) {
       }
     }
 
-    /* ─────────── fetch & populate ─────────── */
     const posts = await Post.find(query)
       .sort({ createdAt: -1 })
       .populate("category")
@@ -167,12 +154,9 @@ export async function GET(request) {
       .populate({ path: "postType", select: "displayName slug" })
       .lean();
 
-    return Response.json({ success: true, data: posts }, { status: 200 });
+    return Response.json({ success: true, data: posts });
   } catch (err) {
-    console.error("Error fetching posts →", err);
-    return Response.json(
-      { success: false, message: "Server Error" },
-      { status: 500 }
-    );
+    console.error("Error fetching posts:", err);
+    return Response.json({ success: false, message: "Server Error" }, { status: 500 });
   }
 }

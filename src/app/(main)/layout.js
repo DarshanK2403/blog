@@ -24,7 +24,7 @@ export const metadata = {
   title: "Yuva Gujarat",
   description:
     "Get the latest government job notifications, exam results, and updates for Gujarat's youth.",
-  icons: { icon: "/yuva-gujarat.svg" },
+  icons: { icon: "/yuva-gujarat.png" },
 };
 
 /* ─── Root layout ─── */
