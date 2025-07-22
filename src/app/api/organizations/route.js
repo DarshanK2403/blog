@@ -4,7 +4,7 @@ import Organization from "@/lib/models/Organization";
 export async function GET() {
   try {
     await dbConnect();
-    const organizations = await Organization.find();
+    const organizations = await Organization.find().sort({name: 1});
     return Response.json(organizations);
   } catch (err) {
     console.error(err);

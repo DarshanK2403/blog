@@ -88,7 +88,7 @@ const EditorComponent = forwardRef(
               initialData?.blocks?.length > 0
                 ? ""
                 : "Start writing your awesome content here...",
-            data: initialData || undefined, // ✅ Add this line
+            data: initialData || undefined,
             tools: {
               header: { class: Header, inlineToolbar: true },
               list: { class: List, inlineToolbar: true },

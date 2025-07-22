@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import EditorJsHtml from "editorjs-html";
 import styles from "./page.module.css";
-import { linkifyHtml } from "@/lib/linkifyHtml";
+import Loading from "@/app/loading";
 
 const customParsers = {
   image: (block) => {
@@ -49,6 +49,13 @@ const PostDetailPage = () => {
           return block;
         });
 
+        const enforceTargetBlank = (html) => {
+          return html.replace(
+            /<a\s+href=["'](.*?)["'](?![^>]*target=)/g,
+            '<a href="$1" target="_blank" rel="noopener noreferrer"'
+          );
+        };
+
         const parsed = editorJsHtml.parse({
           ...postData.content,
           blocks,
@@ -58,7 +65,7 @@ const PostDetailPage = () => {
           ? parsed.join("")
           : parsed?.toString?.() || "";
 
-        const htmlContent = linkifyHtml(joinedHtml);
+        const htmlContent = enforceTargetBlank(joinedHtml);
 
         setHtml(htmlContent); // ✅ Final content with auto-linked URLs
       } catch (error) {
@@ -74,15 +81,13 @@ const PostDetailPage = () => {
       {post && <h1 className={styles.poster}>{post.title}</h1>}
 
       <div className="min-h-60 bg-white p-4">
-        {!html ? (
-          <div className="text-center text-gray-500 py-10">
-            Loading content...
-          </div>
-        ) : (
+        {html ? (
           <div
             className={styles.post}
             dangerouslySetInnerHTML={{ __html: html }}
           />
+        ) : (
+          <Loading />
         )}
       </div>
     </div>
