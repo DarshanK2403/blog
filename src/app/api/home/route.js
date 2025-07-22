@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import Post from "@/lib/models/Post";
 import PostType from "@/lib/models/PostType";
+import Organization from "@/lib/models/Organization";
 
 export async function GET() {
   try {
