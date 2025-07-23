@@ -1,32 +1,25 @@
-// Use dynamic rendering only if post content changes frequently
-export const dynamic = "force-dynamic"; // Optional: can be removed for static caching
+export const dynamic = "force-dynamic";
 
 import PostClientView from "./PostClientView";
 import { notFound } from "next/navigation";
+import dbConnect from "@/lib/dbConnect";
+import Post from "@/models/Post";
+import PostType from "@/models/PostType";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-async function getPost(slug) {
-  try {
-    const res = await fetch(`${BASE_URL}/api/posts/${slug}`, {
-      // Add fetch options to avoid stale data if needed
-      next: { revalidate: 3600 }, // cache for 1 hour — adjust based on frequency of post updates
-    });
+async function getPostDirect(slug) {
+  await dbConnect();
 
-    if (!res.ok) return null;
+  const postType = await PostType.findOne();
+  if (!postType) return null;
 
-    const { data } = await res.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch post:", error);
-    return null;
-  }
+  const post = await Post.findOne({ postType: postType._id, slug });
+  return post || null;
 }
 
-// SEO metadata for each post
 export async function generateMetadata({ params }) {
-  const post = await getPost(params.slug);
-
+  const post = await getPostDirect(params.slug);
   if (!post) {
     return { title: "Post not found · Yuva Gujarat" };
   }
@@ -62,10 +55,9 @@ export async function generateMetadata({ params }) {
   };
 }
 
+// 📄 Page Component
 export default async function Page({ params }) {
-  const post = await getPost(params.slug);
-
-  if (!post) return notFound(); // Handle invalid slugs
-
+  const post = await getPostDirect(params.slug);
+  if (!post) return notFound();
   return <PostClientView slug={params.slug} />;
 }

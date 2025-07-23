@@ -340,7 +340,7 @@ export default function CreatePost() {
                 Save as Draft
               </button>
               <button
-                onClick={() => console.log("Preview clicked")}
+                onClick={() => alert("Coming Soon...")}
                 className="w-full px-4 py-2 border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
               >
                 Preview

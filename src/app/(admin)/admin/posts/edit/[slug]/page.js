@@ -9,6 +9,7 @@ import useCategories from "@/hook/useCategories";
 import useOrganizations from "@/hook/useOrg";
 import useExtrafields from "@/hook/useExtraFields";
 import { generateSlug } from "@/lib/generateSlug";
+import Loading from "@/app/loading";
 
 const EditorComponent = dynamic(
   () => import("@/app/components/EditorComponent"),
@@ -164,11 +165,7 @@ export default function EditPostPage() {
   ];
 
   if (getLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent" />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -198,10 +195,10 @@ export default function EditPostPage() {
               className="border px-3 py-1 text-sm w-full"
             />
             <button
-               onClick={() => {
-                        setIsEditingSlug(false);
-                        setSlugManuallyEdited(true);
-                      }}
+              onClick={() => {
+                setIsEditingSlug(false);
+                setSlugManuallyEdited(true);
+              }}
               className="text-sm text-green-600"
             >
               ✅ Done

@@ -41,7 +41,7 @@ export default function CreateCategoriesPage() {
   };
 
   const saveCategory = async () => {
-    console.log(newCategory);
+   
     try {
       const res = await fetch("/api/category", {
         method: "POST",
@@ -54,7 +54,6 @@ export default function CreateCategoriesPage() {
       const data = await res.json();
 
       if (data.success) {
-        console.log("Saved:", data.data);
         setNewCategory({
           name: "",
           slug: "",

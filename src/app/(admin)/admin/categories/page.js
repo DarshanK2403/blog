@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Loading from "./loading";
 import useCategory from "@/hook/useCategories";
+import Loading from "@/app/loading";
 
 export default function CategoriesPage() {
   const router = useRouter();

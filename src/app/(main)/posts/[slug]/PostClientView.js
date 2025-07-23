@@ -1,10 +1,7 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+// app/posts/[slug]/page.js
 import EditorJsHtml from "editorjs-html";
 import styles from "./page.module.css";
-import Loading from "@/app/loading";
+import { getPostDirect } from "@/app/lib/postUtils";
 
 const customParsers = {
   image: (block) => {
@@ -17,81 +14,47 @@ const customParsers = {
 
 const editorJsHtml = EditorJsHtml(customParsers);
 
-const PostDetailPage = () => {
-  const params = useParams();
-  const slug = params?.slug;
-  const [post, setPost] = useState(null);
-  const [html, setHtml] = useState("");
+function enforceTargetBlank(html) {
+  return html.replace(
+    /<a\s+href=["'](.*?)["'](?![^>]*target=)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer"'
+  );
+}
 
-  useEffect(() => {
-    if (!slug) return;
+export default async function PostDetailPage({ slug }) {
+  // const slug = params.slug;
+  const post = await getPostDirect(slug);
+  if (!post) return <div className="p-5">Post not found</div>;
 
-    const fetchPost = async () => {
-      try {
-        const res = await fetch(`/api/posts/${slug}`);
-        const data = await res.json();
-        const postData = data.data;
-        setPost(postData);
+  const blocks = post?.content?.blocks?.map((block) => {
+    if (block.type === "image" && block.data?.file?.slug) {
+      return {
+        ...block,
+        data: {
+          ...block.data,
+          file: {
+            ...block.data.file,
+            url: `/img/${block.data.file.slug}`,
+          },
+        },
+      };
+    }
+    return block;
+  });
 
-        const blocks = postData?.content?.blocks?.map((block) => {
-          if (block.type === "image" && block.data?.file?.slug) {
-            return {
-              ...block,
-              data: {
-                ...block.data,
-                file: {
-                  ...block.data.file,
-                  url: `/img/${block.data.file.slug}`, // Rewrite to local proxy
-                },
-              },
-            };
-          }
-          return block;
-        });
-
-        const enforceTargetBlank = (html) => {
-          return html.replace(
-            /<a\s+href=["'](.*?)["'](?![^>]*target=)/g,
-            '<a href="$1" target="_blank" rel="noopener noreferrer"'
-          );
-        };
-
-        const parsed = editorJsHtml.parse({
-          ...postData.content,
-          blocks,
-        });
-
-        const joinedHtml = Array.isArray(parsed)
-          ? parsed.join("")
-          : parsed?.toString?.() || "";
-
-        const htmlContent = enforceTargetBlank(joinedHtml);
-
-        setHtml(htmlContent); // ✅ Final content with auto-linked URLs
-      } catch (error) {
-        console.error("Error loading post:", error);
-      }
-    };
-
-    fetchPost();
-  }, [slug]);
+  const parsed = editorJsHtml.parse({ ...post.content, blocks });
+  const joinedHtml = Array.isArray(parsed) ? parsed.join("") : parsed?.toString?.() || "";
+  const html = enforceTargetBlank(joinedHtml);
 
   return (
     <div className="p-2 max-w-3xl mx-auto mt-5">
-      {post && <h1 className={styles.poster}>{post.title}</h1>}
-
+      <h1 className={styles.poster}>{post.title}</h1>
       <div className="min-h-60 bg-white p-4">
-        {html ? (
-          <div
-            className={styles.post}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        ) : (
-          <Loading />
-        )}
+        <div
+          className={styles.post}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       </div>
     </div>
   );
-};
-
-export default PostDetailPage;
+}

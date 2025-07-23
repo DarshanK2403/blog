@@ -7,7 +7,7 @@ export async function POST(req) {
     const data = await req.formData();
     const file = data.get("image");
     const slug = data.get("slug");
-    console.log(slug);
+  
 
     if (!file) {
       return NextResponse.json({ success: 0, message: "No file uploaded" });
@@ -33,7 +33,7 @@ export async function POST(req) {
       Readable.from(buffer).pipe(stream);
     });
 
-    console.log(result)
+   
     return NextResponse.json({
       success: 1,
       file: {

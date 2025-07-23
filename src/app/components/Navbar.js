@@ -87,28 +87,52 @@ const Navbar = () => {
               onClick={toggleMenu}
               className="text-gray-800 hover:text-blue-600"
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
       </div>
-
+      
       {isOpen && (
         <div className="md:hidden bg-gray-50 px-4 py-4 space-y-2 border-t border-gray-200">
-          <Link href="/" className="block py-2 px-2 hover:text-blue-600">
+          <Link
+            href="/"
+            className="block py-2 px-2 hover:text-blue-600"
+            onClick={() => setIsOpen(false)}
+          >
             Home
           </Link>
-          <Link href="/results" className="block py-2 px-2 hover:text-blue-600">
+          <Link
+            href="/results"
+            className="block py-2 px-2 hover:text-blue-600"
+            onClick={() => setIsOpen(false)}
+          >
             Results
           </Link>
-          <Link href="#" className="block py-2 px-2 hover:text-blue-600">
+          <Link
+            href="#"
+            className="block py-2 px-2 hover:text-blue-600"
+            onClick={() => setIsOpen(false)}
+          >
             Admit Card
           </Link>
-          <Link href="#" className="block py-2 px-2 hover:text-blue-600">
+          <Link
+            href="#"
+            className="block py-2 px-2 hover:text-blue-600"
+            onClick={() => setIsOpen(false)}
+          >
             Exam Calendar
           </Link>
           {isAdmin && (
-            <Link href="/admin/dashboard" className="block py-2 px-2 hover:text-blue-600">
+            <Link
+              href="/admin/dashboard"
+              className="block py-2 px-2 hover:text-blue-600"
+              onClick={() => setIsOpen(false)}
+            >
               Admin Dashboard
             </Link>
           )}

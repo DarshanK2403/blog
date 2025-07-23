@@ -1,46 +1,11 @@
-// app/(main)/HomeContent.jsx
 "use client";
 
 import { ArrowRight, Bell } from "lucide-react";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchHomeData } from "@/redux/homeSlice";
+import { useRouter } from "next/navigation";
 
-const SkeletonSection = () => (
-  <section className="max-w-4xl mx-auto mb-4 animate-pulse">
-    <div className="h-6 w-48 bg-gray-200 rounded mb-4"></div>
-    <div className="space-y-3">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div
-          key={i}
-          className="flex justify-between items-center p-4 bg-white rounded shadow-sm"
-        >
-          <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
-          <div className="h-4 w-16 bg-gray-200 rounded"></div>
-        </div>
-      ))}
-    </div>
-  </section>
-);
-
-export default function HomeContent() {
+export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
   const router = useRouter();
-  const dispatch = useDispatch();
-  const { latestJobs, latestResults, jobUpdates, loading } = useSelector(
-    (state) => state.home
-  );
-
-  useEffect(() => {
-    if (
-      latestJobs.length === 0 &&
-      latestResults.length === 0 &&
-      jobUpdates.length === 0
-    ) {
-      dispatch(fetchHomeData());
-    }
-  }, [dispatch]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -77,17 +42,8 @@ export default function HomeContent() {
     return colors[type] || "bg-gray-100 text-gray-800";
   };
 
-  if (loading) {
-    return (
-      <div className="max-h-screen max-w-4xl mx-auto gap-4 bg-gray-50 px-4 sm:px-6 lg:px-8 py-6">
-        <SkeletonSection />
-        <SkeletonSection />
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-white">
+    <div className="bg-white font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Section
           title="Latest Recruitment"
@@ -100,8 +56,9 @@ export default function HomeContent() {
             <span className={`text-sm text-red-600 font-medium`}>
               (<span className="text-nowrap">Last Date: </span>{" "}
               <span className="text-nowrap">
-                {item?.extraFields?.["last-date"] || "No Date"}
-              </span>)
+                {item?.extraFields?.["last-date"] || "To be announced"}
+              </span>
+              )
             </span>
           )}
         />
@@ -133,7 +90,7 @@ export default function HomeContent() {
           </div>
 
           <div className="space-y-4 w-full">
-            {jobUpdates.map((update) => (
+            {jobUpdates?.map((update) => (
               <button
                 key={update._id}
                 onClick={() => router.push(`/posts/${update.slug}`)}
@@ -178,9 +135,11 @@ export default function HomeContent() {
 
 function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
   return (
-    <section className="mb-5 mt-5">
+    <section className="mb-5 mt-5 font-sans">
       <div className="flex flex-row flex-wrap items-center justify-between gap-2 mb-2">
-        <h2 className="text-base sm:text-xl font-bold text-gray-900">{title}</h2>
+        <h2 className="text-base sm:text-xl font-bold text-gray-900">
+          {title}
+        </h2>
         <Link
           href="#"
           className="text-sm sm:text-base text-blue-600 hover:underline flex items-center"
@@ -192,7 +151,7 @@ function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
       <div className="overflow-x-auto">
         <table className="min-w-full text-xs sm:text-sm md:text-base">
           <tbody className="divide-y divide-gray-200">
-            {items.map((item) => (
+            {items?.map((item) => (
               <tr
                 key={item._id}
                 className="hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-300"

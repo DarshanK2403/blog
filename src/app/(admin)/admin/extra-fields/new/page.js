@@ -3,6 +3,7 @@
 import InputComponent from "@/app/components/InputComponent";
 import { useState } from "react";
 import usePostTypes from "@/hook/usePostTypes";
+import Loading from "@/app/loading";
 
 export default function ExtraFields() {
   const [formData, setFormData] = useState({});
@@ -55,11 +56,7 @@ export default function ExtraFields() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin h-10 w-10 rounded-full border-4 border-blue-500 border-t-transparent" />
-      </div>
-    );
+    <Loading />;
   }
 
   return (

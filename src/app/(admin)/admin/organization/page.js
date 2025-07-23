@@ -14,7 +14,7 @@ export default function OrganizationPage() {
         method: "DELETE",
       });
       const data = await res.json();
-      console.log(data);
+  
       refetch();
     } catch (error) {
       console.log("Delete Post Type Error", error);

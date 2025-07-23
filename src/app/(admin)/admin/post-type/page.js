@@ -1,5 +1,6 @@
 "use client";
 import InputComponent from "@/app/components/InputComponent";
+import Loading from "@/app/loading";
 import usePostTypes from "@/hook/usePostTypes";
 import { Edit, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -79,12 +80,7 @@ export default function PostType() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <Loading />;
   if (error) return <div>Error: {error}</div>;
 
   return (

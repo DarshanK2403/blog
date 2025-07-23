@@ -1,4 +1,4 @@
-import HomeContent from "../components/HomeClientComponent";
+import HomePageServer from "./HomePageServer";
 
 // app/page.js or app/(main)/page.js
 export const metadata = {
@@ -14,8 +14,8 @@ export const metadata = {
     images: [
       {
         url: `${process.env.NEXT_PUBLIC_BASE_URL}/yuva-gujarat.png`,
-        width: 1200,
-        height: 630,
+        width: 500,
+        height: 500,
         alt: "Yuva Gujarat Logo",
       },
     ],
@@ -26,10 +26,10 @@ export const metadata = {
     description:
       "Get instant updates on government jobs, results, and youth schemes in Gujarat.",
     images: [`${process.env.NEXT_PUBLIC_BASE_URL}/yuva-gujarat.png`],
-    creator: "@YuvaGujarat", // optional
+    creator: "@YuvaGujarat",
   },
 };
 
 export default function Home() {
-  return <HomeContent />;
+  return <HomePageServer />;
 }
