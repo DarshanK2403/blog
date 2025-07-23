@@ -1,20 +1,20 @@
-<svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg width="1155" height="1000" viewBox="0 0 1155 1000" xmlns="http://www.w3.org/2000/svg">
   <!-- Round background -->
-  <circle cx="50" cy="50" r="40" fill="none" stroke="#FF6B35" stroke-width="1"/>
-  
+  <circle cx="577.5" cy="500" r="400" fill="none" stroke="#FF6B35" stroke-width="10"/>
+
   <!-- Main Text YUVA -->
-  <text x="50" y="40" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#2E74B5">YUVA</text>
-  
+  <text x="577.5" y="400" font-family="Arial, sans-serif" font-size="140" font-weight="bold" text-anchor="middle" fill="#2E74B5">YUVA</text>
+
   <!-- Main Text GUJARAT -->
-  <text x="50" y="58" font-family="Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#FF6B35">GUJARAT</text>
-  
+  <text x="577.5" y="580" font-family="Arial, sans-serif" font-size="120" font-weight="600" text-anchor="middle" fill="#FF6B35">GUJARAT</text>
+
   <!-- Simple underline accent -->
-  <line x1="25" y1="68" x2="75" y2="68" stroke="#2E74B5" stroke-width="1.5"/>
-  
+  <line x1="288.75" y1="680" x2="866.25" y2="680" stroke="#2E74B5" stroke-width="15"/>
+
   <!-- Modern geometric accent -->
-  <circle cx="22" cy="68" r="2" fill="#FF6B35"/>
-  <circle cx="78" cy="68" r="2" fill="#FF6B35"/>
-  
+  <circle cx="253.5" cy="680" r="20" fill="#FF6B35"/>
+  <circle cx="901.5" cy="680" r="20" fill="#FF6B35"/>
+
   <!-- Tagline or subtitle area -->
-  <text x="50" y="75" font-family="Arial, sans-serif" font-size="6" text-anchor="middle" fill="#666666">YOUTH OF GUJARAT</text>
+  <text x="577.5" y="750" font-family="Arial, sans-serif" font-size="60" text-anchor="middle" fill="#666666">YOUTH OF GUJARAT</text>
 </svg>
