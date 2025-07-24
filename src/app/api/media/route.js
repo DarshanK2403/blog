@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import cloudinary from "@/lib/cloudinary";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function GET() {
+  const user = requireAdmin(request);
+  if (user instanceof Response) return user;
+
   try {
     const { resources } = await cloudinary.api.resources({
       type: "upload",
@@ -27,6 +31,9 @@ export async function GET() {
 }
 
 export async function DELETE(request) {
+  const user = requireAdmin(request);
+  if (user instanceof Response) return user;
+
   const { searchParams } = new URL(request.url);
   const public_id = searchParams.get("public_id");
 

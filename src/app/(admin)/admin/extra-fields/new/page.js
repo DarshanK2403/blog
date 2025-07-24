@@ -49,6 +49,7 @@ export default function ExtraFields() {
     e.preventDefault();
     const res = await fetch("/api/extra-fields", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });

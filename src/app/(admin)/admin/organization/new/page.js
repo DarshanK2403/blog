@@ -39,6 +39,7 @@ export default function OrganizationForm() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "same-origin",
         body: JSON.stringify(payload),
       });
       const data = await res.json();

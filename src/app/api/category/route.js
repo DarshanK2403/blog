@@ -1,8 +1,12 @@
 import dbConnect from "@/lib/dbConnect";
 import Category from "@/lib/models/Category";
 import Organization from "@/lib/models/Organization";
+import { requireAdmin } from "@/lib/requireAdmin";
 // GET all categories
 export async function GET(request) {
+  const user = requireAdmin(request);
+  if (user instanceof Response) return user;
+
   await dbConnect();
 
   try {

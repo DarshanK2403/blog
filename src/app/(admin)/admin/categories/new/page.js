@@ -41,13 +41,13 @@ export default function CreateCategoriesPage() {
   };
 
   const saveCategory = async () => {
-   
     try {
       const res = await fetch("/api/category", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "same-origin",
         body: JSON.stringify(newCategory),
       });
 

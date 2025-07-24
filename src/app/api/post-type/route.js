@@ -3,6 +3,7 @@ import PostType from "@/lib/models/PostType";
 import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function POST(request) {
+
    const user = requireAdmin(request);
     if (user instanceof Response) return user;
   

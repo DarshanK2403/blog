@@ -1,9 +1,13 @@
 import dbConnect from "@/lib/dbConnect";
 import ExtraField from "@/lib/models/ExtraField";
 import { PostType } from "@/lib/models/PostType";
+import { requireAdmin } from "@/lib/requireAdmin";
 import { isValidObjectId } from "mongoose";
 
 export async function POST(request) {
+  const user = requireAdmin(request);
+  if (user instanceof Response) return user;
+
   await dbConnect();
 
   const body = await request.json();

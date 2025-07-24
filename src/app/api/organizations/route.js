@@ -1,10 +1,11 @@
 import dbConnect from "@/lib/dbConnect";
 import Organization from "@/lib/models/Organization";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function GET() {
   try {
     await dbConnect();
-    const organizations = await Organization.find().sort({name: 1});
+    const organizations = await Organization.find().sort({ name: 1 });
     return Response.json(organizations);
   } catch (err) {
     console.error(err);
@@ -16,6 +17,9 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  const user = requireAdmin(request);
+  if (user instanceof Response) return user;
+
   try {
     await dbConnect();
     const body = await request.json();

@@ -11,7 +11,9 @@ const Media = () => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const res = await fetch("/api/media");
+        const res = await fetch("/api/media", {
+          credentials: "same-origin",
+        });
         const { images } = await res.json();
         setUsedImages(images); // Store full image objects
       } catch (err) {
