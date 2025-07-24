@@ -3,6 +3,29 @@ import Link from "next/link";
 import React from "react";
 
 export default function Footer() {
+  const supportItems = [
+    { label: "Contact Us", slug: "contact" },
+    { label: "Privacy Policy", slug: "privacy-policy" },
+    { label: "Terms of Conditions", slug: "terms" },
+    { label: "Feedback", slug: "feedback" },
+  ];
+
+  const quickLinks1 = [
+    { title: "UPSC Jobs", slug: "upsc" },
+    { title: "GPSC Jobs", slug: "gpsc" },
+    { title: "SSC Jobs", slug: "ssc" },
+    { title: "Banking Jobs", slug: "banking" },
+    { title: "Railway Jobs", slug: "railway" },
+  ];
+
+  const quickLinks2 = [
+    { title: "Latest Jobs", slug: "latest-jobs" },
+    { title: "Admit Cards", slug: "admit-cards" },
+    { title: "Results", slug: "results" },
+    { title: "Syllabus", slug: "syllabus" },
+    { title: "Answer Keys", slug: "answer-keys" },
+  ];
+
   return (
     <footer className="bg-white text-gray-700 py-10 border-t-2 border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,33 +50,41 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h5 className="text-lg font-semibold mb-3 text-black">Quick Links</h5>
+            <h5 className="text-lg font-semibold mb-3 text-black">
+              Quick Links
+            </h5>
             <ul className="space-y-2 text-sm text-gray-600">
-              {["Latest Jobs", "Admit Cards", "Results", "Syllabus", "Answer Keys"].map(
-                (link, idx) => (
-                  <li key={idx}>
-                    <Link href="#" className="hover:text-blue-600 transition">
-                      {link}
-                    </Link>
-                  </li>
-                )
-              )}
+              {[
+                "Latest Jobs",
+                "Admit Cards",
+                "Results",
+                "Syllabus",
+                "Answer Keys",
+              ].map((link, idx) => (
+                <li key={idx}>
+                  <Link href="#" className="hover:text-blue-600 transition">
+                    {link}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Categories */}
           <div>
-            <h5 className="text-lg font-semibold mb-3 text-black">Categories</h5>
+            <h5 className="text-lg font-semibold mb-3 text-black">
+              Quick Links
+            </h5>
             <ul className="space-y-2 text-sm text-gray-600">
-              {["UPSC Jobs", "SSC Jobs", "Banking Jobs", "Railway Jobs", "Defence Jobs"].map(
-                (cat, idx) => (
-                  <li key={idx}>
-                    <Link href="#" className="hover:text-blue-600 transition">
-                      {cat}
-                    </Link>
-                  </li>
-                )
-              )}
+              {quickLinks1.map(({ title, slug }) => (
+                <li key={slug}>
+                  <Link
+                    href={`/${slug}`}
+                    className="hover:text-blue-600 transition"
+                  >
+                    {title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -61,22 +92,24 @@ export default function Footer() {
           <div>
             <h5 className="text-lg font-semibold mb-3 text-black">Support</h5>
             <ul className="space-y-2 text-sm text-gray-600">
-              {["Contact Us", "Privacy Policy", "Terms of Service", "FAQ", "Feedback"].map(
-                (item, idx) => (
-                  <li key={idx}>
-                    <Link href="#" className="hover:text-blue-600 transition">
-                      {item}
-                    </Link>
-                  </li>
-                )
-              )}
+              {supportItems.map((item, idx) => (
+                <li key={idx}>
+                  <Link
+                    href={`/${item.slug}`}
+                    className="hover:text-blue-600 transition"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
         {/* Bottom Note */}
         <div className="mt-8 border-t border-gray-300 pt-6 text-center text-sm text-gray-500">
-          © 2025 GovJobs Portal. All rights reserved. | Made with ❤️ for job seekers
+          © 2025 GovJobs Portal. All rights reserved. | Made with ❤️ for job
+          seekers
         </div>
       </div>
     </footer>

@@ -5,18 +5,17 @@ import { notFound } from "next/navigation";
 import dbConnect from "@/lib/dbConnect";
 import Post from "@/models/Post";
 import PostType from "@/models/PostType";
+import { getPostDirect } from "@/app/lib/postUtils";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-async function getPostDirect(slug) {
-  await dbConnect();
+// async function getPostDirect(slug) {
+//   await dbConnect();
 
-  const postType = await PostType.findOne();
-  if (!postType) return null;
-
-  const post = await Post.findOne({ postType: postType._id, slug });
-  return post || null;
-}
+//   // Directly find post by slug (assuming slug is unique)
+//   const post = await Post.findOne({ slug });
+//   return post || null;
+// }
 
 export async function generateMetadata({ params }) {
   const post = await getPostDirect(params.slug);

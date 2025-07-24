@@ -24,6 +24,7 @@ function enforceTargetBlank(html) {
 export default async function PostDetailPage({ slug }) {
   // const slug = params.slug;
   const post = await getPostDirect(slug);
+  console.log("Post view", slug);
   if (!post) return <div className="p-5">Post not found</div>;
 
   const blocks = post?.content?.blocks?.map((block) => {
@@ -43,7 +44,9 @@ export default async function PostDetailPage({ slug }) {
   });
 
   const parsed = editorJsHtml.parse({ ...post.content, blocks });
-  const joinedHtml = Array.isArray(parsed) ? parsed.join("") : parsed?.toString?.() || "";
+  const joinedHtml = Array.isArray(parsed)
+    ? parsed.join("")
+    : parsed?.toString?.() || "";
   const html = enforceTargetBlank(joinedHtml);
 
   return (

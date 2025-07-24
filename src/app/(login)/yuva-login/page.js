@@ -132,17 +132,6 @@ export default function Login() {
                 )}
               </div>
 
-              {/* Remember Me + Forgot */}
-              <div className="flex justify-between items-center text-sm">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" className="w-4 h-4 border-gray-300" />
-                  Remember Me
-                </label>
-                <a href="#" className="text-blue-600 hover:underline">
-                  Forgot Password?
-                </a>
-              </div>
-
               {/* Submit */}
               <button
                 type="submit"
@@ -185,29 +174,7 @@ export default function Login() {
                 <span>Sign in with Google</span>
               </button>
             </div>
-            {/* Links */}
-            <div className="mt-6 pt-4 border-t text-center text-sm text-gray-600 space-y-2">
-              <p>
-                Don’t have an account?{" "}
-                <a
-                  href="#"
-                  className="text-blue-700 font-medium hover:underline"
-                >
-                  Register Here
-                </a>
-              </p>
-              <p>
-                <a href="#" className="text-blue-700 hover:underline">
-                  Application Status
-                </a>{" "}
-                |{" "}
-                <a href="#" className="text-blue-700 hover:underline">
-                  Help & Support
-                </a>
-              </p>
-            </div>
           </div>
-
           {/* Footer */}
           <div className="text-center text-gray-500 text-xs mt-6">
             <p>© 2025 Government of India. All rights reserved.</p>

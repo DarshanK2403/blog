@@ -4,6 +4,7 @@ import Post from "@/models/Post";
 import PostType from "@/models/PostType";
 import PageComponent from "./PageComponent";
 import Organization from "@/lib/models/Organization";
+import Link from "next/link";
 
 async function getPostDirect(slug) {
   await dbConnect();
@@ -59,20 +60,34 @@ export default async function Page({ params }) {
       </div>
 
       <div className="p-4 max-w-4xl mx-auto">
-        <h1 className="text-xl font-bold mb-4 capitalize">{slug} Jobs</h1>
+        {/* <h1 className="text-xl font-bold mb-4 uppercase">{slug}</h1> */}
 
-        {posts.length === 0 ? (
+        {posts?.length === 0 ? (
           <p>No posts found</p>
         ) : (
-          <table className="w-full text-left border">
-            <tbody>
-              {posts.map((post) => (
-                <tr key={post._id}>
-                  <td className="p-2 border">{post.title}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="divide-y divide-gray-200 border border-gray-600/50 overflow-hidden bg-white">
+            {posts?.map((post) => (
+              <div key={post._id} className="px-4 py-2 hover:bg-gray-50">
+                <Link href={`/posts/${post.slug}`}>
+                  <div
+                    className="flex items-center gap-2 text-sm text-gray-800 line-clamp-1 hover:cursor-pointer font-medium font-sans"
+                    title={post.title}
+                  >
+                    <span className="text-gray-400">➤</span>
+                    <span>{post.title}</span>
+                  </div>
+                </Link>
+                <div className="text-xs text-gray-500 ml-5">
+                  📅{" "}
+                  {new Date(post.createdAt).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
