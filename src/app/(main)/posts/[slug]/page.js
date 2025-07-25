@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import PostClientView from "./PostClientView";
 import { notFound } from "next/navigation";

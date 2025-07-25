@@ -1,4 +1,6 @@
 // app/(home)/HomePageServer.js
+export const dynamic = "force-dynamic";
+
 import { getHomePosts } from "../lib/helper/getHomePosts";
 import HomeContent from "./HomeClientComponent";
 

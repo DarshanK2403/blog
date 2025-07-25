@@ -2,11 +2,8 @@
 
 import { ArrowRight, Bell } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
-  const router = useRouter();
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-IN", {
@@ -48,12 +45,11 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
         <Section
           title="Latest Recruitment"
           items={latestJobs}
-          onClick={(slug) => router.push(`/posts/${slug}`)}
-          getDate={(item) => item?.extraFields?.lastDate}
+          getSlug={(item) => `/posts/${item.slug}`}
           getTitle={(item) => item?.title}
           getOrg={(item) => item?.organization?.name}
           renderRight={(item) => (
-            <span className={`text-sm text-red-600 font-medium`}>
+            <span className="text-sm text-red-600 font-medium">
               (<span className="text-nowrap">Last Date: </span>{" "}
               <span className="text-nowrap">
                 {item?.extraFields?.["last-date"] || "To be announced"}
@@ -66,7 +62,7 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
         <Section
           title="Result Updates"
           items={latestResults}
-          onClick={(slug) => router.push(`/posts/${slug}`)}
+          getSlug={(item) => `/posts/${item.slug}`}
           getTitle={(item) => item?.title}
           getOrg={(item) => item?.organization?.name}
           renderRight={(item) => (
@@ -91,10 +87,10 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
 
           <div className="space-y-4 w-full">
             {jobUpdates?.map((update) => (
-              <button
+              <Link
                 key={update._id}
-                onClick={() => router.push(`/posts/${update.slug}`)}
-                className="w-full text-left"
+                href={`/posts/${update.slug}`}
+                className="block w-full text-left no-underline"
               >
                 <div className="border-l-4 rounded-md border-blue-600 bg-white p-4 shadow-sm hover:shadow-md transition">
                   <div className="flex justify-between items-start sm:items-center gap-3">
@@ -124,7 +120,7 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
                     <ArrowRight className="text-blue-600 hover:text-blue-700 w-5 h-5 hidden sm:block" />
                   </div>
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
         </section>
@@ -133,7 +129,7 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
   );
 }
 
-function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
+function Section({ title, items, getSlug, getTitle, getOrg, renderRight }) {
   return (
     <section className="mb-5 mt-5 font-sans">
       <div className="flex flex-row flex-wrap items-center justify-between gap-2 mb-2">
@@ -152,38 +148,39 @@ function Section({ title, items, onClick, getTitle, getOrg, renderRight }) {
         <table className="min-w-full text-xs sm:text-sm md:text-base">
           <tbody className="divide-y divide-gray-200">
             {items?.map((item) => (
-              <tr
-                key={item._id}
-                className="hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-300"
-                onClick={() => onClick(item.slug)}
-              >
-                <td className="px-2 py-2 w-full">
-                  <div className="hidden sm:flex flex-row justify-between items-center gap-2">
-                    <div className="flex gap-1">
-                      <span className="font-medium font-sans text-gray-900 hover:text-blue-600 truncate">
+              <tr key={item._id} className="border-b border-gray-300">
+                <td className="w-full">
+                  <Link
+                    href={getSlug(item)}
+                    className="block hover:bg-blue-50 transition-colors p-2 rounded"
+                  >
+                    <div className="hidden sm:flex flex-row justify-between items-center gap-2">
+                      <div className="flex gap-1">
+                        <span className="font-medium font-sans text-gray-900 hover:text-blue-600 truncate">
+                          {getTitle(item)}
+                        </span>
+                        <span className="text-blue-600 font-medium truncate max-w-[14rem]">
+                          {getOrg(item)}
+                        </span>
+                      </div>
+                      <div className="text-sm text-right whitespace-nowrap">
+                        {renderRight(item)}
+                      </div>
+                    </div>
+                    <div className="flex sm:hidden flex-col gap-0.5">
+                      <span className="font-medium text-gray-900 hover:text-blue-600 truncate">
                         {getTitle(item)}
                       </span>
-                      <span className="text-blue-600 font-medium truncate max-w-[14rem]">
-                        {/* {getOrg(item)} */}
-                      </span>
+                      <div className="flex justify-between items-center text-xs text-gray-600">
+                        <span className="text-blue-600 font-medium truncate">
+                          {getOrg(item)}
+                        </span>
+                        <span className="text-gray-500 whitespace-nowrap">
+                          {renderRight(item)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-sm text-right whitespace-nowrap">
-                      {renderRight(item)}
-                    </div>
-                  </div>
-                  <div className="flex sm:hidden flex-col gap-0.5">
-                    <span className="font-medium text-gray-900 hover:text-blue-600 truncate">
-                      {getTitle(item)}
-                    </span>
-                    <div className="flex justify-between items-center text-xs text-gray-600">
-                      <span className="text-blue-600 font-medium truncate">
-                        {getOrg(item)}
-                      </span>
-                      <span className="text-gray-500 whitespace-nowrap">
-                        {renderRight(item)}
-                      </span>
-                    </div>
-                  </div>
+                  </Link>
                 </td>
               </tr>
             ))}
