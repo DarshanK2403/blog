@@ -160,7 +160,7 @@ function Section({ title, items, getSlug, getTitle, getOrg, renderRight }) {
                           {getTitle(item)}
                         </span>
                         <span className="text-blue-600 font-medium truncate max-w-[14rem]">
-                          {getOrg(item)}
+                          {/* {getOrg(item)} */}
                         </span>
                       </div>
                       <div className="text-sm text-right whitespace-nowrap">
