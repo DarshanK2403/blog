@@ -12,6 +12,10 @@ const ContactSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    read: {
+      type: Boolean,
+      default: false,
+    },
     message: {
       type: String,
       required: true,
@@ -21,4 +25,5 @@ const ContactSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Contact || mongoose.model("Contact", ContactSchema);
+export default mongoose.models.Contact ||
+  mongoose.model("Contact", ContactSchema);

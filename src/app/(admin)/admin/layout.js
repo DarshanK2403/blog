@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Admin Panel | Yuva Gujarat",
   description: "Only for Admins",
-  icons: { icon: "/yuva-gujarat.png" },
+  icons: { icon: "/yuva-gujarat.svg" },
 };
 
 export default async function AdminLayout({ children }) {

@@ -52,7 +52,7 @@ export const metadata = {
     "Maru Gujarat Jobs",
   ],
   icons: {
-    icon: "/yuva-gujarat.png",
+    icon: "/yuva-gujarat.svg",
     apple: "/yuva-gujarat.png",
     shortcut: "/yuva-gujarat.png",
   },
@@ -77,7 +77,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased" suppressHydrationWarning={true}>
+      <body className="antialiased" suppressHydrationWarning={false}>
         {children}
       </body>
     </html>

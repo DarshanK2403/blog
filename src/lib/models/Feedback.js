@@ -14,6 +14,10 @@ const FeedbackSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
+    read: {
+      type: Boolean,
+      default: false,
+    },
     message: {
       type: String,
       required: true,
@@ -25,4 +29,5 @@ const FeedbackSchema = new mongoose.Schema(
 );
 
 // Prevent model overwrite in dev
-export default mongoose.models.Feedback || mongoose.model("Feedback", FeedbackSchema);
+export default mongoose.models.Feedback ||
+  mongoose.model("Feedback", FeedbackSchema);

@@ -26,6 +26,9 @@ import {
   Layers,
   Puzzle,
   Columns,
+  HelpCircle,
+  MessageCircle,
+  Mail,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -135,6 +138,26 @@ const AdminSidebar = () => {
       label: "Analytics",
       icon: BarChart3,
       path: "/admin/analytics",
+    },
+     {
+      id: "user-queries",
+      label: "User Queries",
+      icon: HelpCircle,
+      expandable: true,
+      subItems: [
+        {
+          id: "feedback",
+          label: "Feedback",
+          icon: MessageCircle,
+          path: "/admin/feedback",
+        },
+        {
+          id: "contact",
+          label: "Contact us",
+          icon: Mail,
+          path: "/admin/contact",
+        },
+      ],
     },
   ];
 

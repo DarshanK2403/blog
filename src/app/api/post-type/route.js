@@ -3,10 +3,9 @@ import PostType from "@/lib/models/PostType";
 import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function POST(request) {
+  const user = requireAdmin(request);
+  if (user instanceof Response) return user;
 
-   const user = requireAdmin(request);
-    if (user instanceof Response) return user;
-  
   await dbConnect();
 
   function toBoolean(value, defaultValue = false) {
@@ -22,10 +21,7 @@ export async function POST(request) {
     // ✅ Check for existing slug
     const existing = await PostType.findOne({ slug });
     if (existing) {
-      return Response.json(
-        { error: "Slug already exists" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Slug already exists" }, { status: 400 });
     }
 
     const newType = await PostType.create({

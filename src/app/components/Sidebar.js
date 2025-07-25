@@ -3,22 +3,22 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 
-const orgs = [
-  "SSC",
-  "UPSC",
-  "GPSC",
-  "OJAS",
-  "IBPS",
-  "Railway",
-  "Defense",
-  "Police",
-  "Forest",
-  "Teacher",
-  "Clerk",
-  "Banking",
-  "High Court",
-  "Judiciary",
-  "Technical",
+const quickLinks = [
+  { label: "SSC", slug: "ssc" },
+  { label: "UPSC", slug: "upsc" },
+  { label: "GPSC", slug: "gpsc" },
+  { label: "OJAS", slug: "ojas" },
+  { label: "IBPS", slug: "ibps" },
+  { label: "Railway", slug: "railway" },
+  { label: "Defense", slug: "defense" },
+  { label: "Police", slug: "police" },
+  { label: "Forest", slug: "forest" },
+  { label: "Teacher", slug: "teacher" },
+  { label: "Clerk", slug: "clerk" },
+  { label: "Banking", slug: "banking" },
+  { label: "High Court", slug: "high-court" },
+  { label: "Judiciary", slug: "judiciary" },
+  { label: "Technical", slug: "technical" },
 ];
 
 export default function Sidebar() {
@@ -26,7 +26,7 @@ export default function Sidebar() {
   const ref = useRef(null);
   const router = useRouter();
 
-  // Close when clicked outside
+  // Close sidebar when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
@@ -37,8 +37,8 @@ export default function Sidebar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleNavigate = (org) => {
-    router.push(`/${org.toLowerCase()}`);
+  const handleNavigate = (slug) => {
+    router.push(`/${slug}`);
     setIsOpen(false);
   };
 
@@ -49,15 +49,15 @@ export default function Sidebar() {
     >
       <h2 className="text-lg font-semibold mb-4 text-gray-900">Quick Links</h2>
       <div className="space-y-2">
-        {orgs.map((org, index) => (
-          <div key={org}>
+        {quickLinks.map(({ label, slug }, index) => (
+          <div key={slug}>
             <button
-              onClick={() => handleNavigate(org)}
+              onClick={() => handleNavigate(slug)}
               className="block text-left w-full text-sm px-2 py-1 text-black hover:bg-gray-100"
             >
-              {org}
+              {label}
             </button>
-            {index !== orgs.length - 1 && (
+            {index !== quickLinks.length - 1 && (
               <hr className="border-gray-300 my-1" />
             )}
           </div>
