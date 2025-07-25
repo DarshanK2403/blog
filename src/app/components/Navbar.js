@@ -65,7 +65,7 @@ const Navbar = () => {
             >
               <FileText className="h-4 w-4 mr-1" /> Results
             </Link>
-            <Link href="#" className="flex items-center hover:text-blue-600">
+            <Link href="/admit-card" className="flex items-center hover:text-blue-600">
               <Calendar className="h-4 w-4 mr-1" /> Admit Card
             </Link>
             <Link href="#" className="flex items-center hover:text-blue-600">
@@ -114,7 +114,7 @@ const Navbar = () => {
             Results
           </Link>
           <Link
-            href="#"
+            href="/admit-card"
             className="block py-2 px-2 hover:text-blue-600"
             onClick={() => setIsOpen(false)}
           >

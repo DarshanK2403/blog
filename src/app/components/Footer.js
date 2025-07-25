@@ -49,21 +49,18 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+           <div>
             <h5 className="text-lg font-semibold mb-3 text-black">
               Quick Links
             </h5>
             <ul className="space-y-2 text-sm text-gray-600">
-              {[
-                "Latest Jobs",
-                "Admit Cards",
-                "Results",
-                "Syllabus",
-                "Answer Keys",
-              ].map((link, idx) => (
-                <li key={idx}>
-                  <Link href="#" className="hover:text-blue-600 transition">
-                    {link}
+              {quickLinks2.map(({ title, slug }) => (
+                <li key={slug}>
+                  <Link
+                    href={`/${slug}`}
+                    className="hover:text-blue-600 transition"
+                  >
+                    {title}
                   </Link>
                 </li>
               ))}
