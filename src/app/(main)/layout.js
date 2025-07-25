@@ -21,6 +21,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.className} ${geistMono.className}`}>
+      <head>
+        <meta
+          name="google-adsense-account"
+          content="ca-pub-3770241554874739"
+        ></meta>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3770241554874739"
+          crossorigin="anonymous"
+        ></script>
+      </head>
       <body className="antialiased">
         <div className=" bg-[#F6F8FA] flex w-screen flex-col min-h-screen">
           <div className="flex flex-col min-h-screen">
