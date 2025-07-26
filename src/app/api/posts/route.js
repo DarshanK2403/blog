@@ -1,8 +1,6 @@
 import dbConnect from "@/lib/dbConnect"; // your DB connection
 import Post from "@/lib/models/Post"; // your mongoose Post model
 import PostType from "@/lib/models/PostType";
-import Organization from "@/lib/models/Organization";
-import Category from "@/lib/models/Category";
 import { requireAdmin } from "@/lib/requireAdmin";
 import mongoose from "mongoose";
 import Section from "@/lib/models/Section";
@@ -86,7 +84,7 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
 
-    const allowedKeys = ["status", "postType", "organization"];
+    const allowedKeys = ["status", "postType"];
     for (const key of searchParams.keys()) {
       if (!allowedKeys.includes(key)) {
         return Response.json(
@@ -136,35 +134,10 @@ export async function GET(request) {
       }
     }
 
-    // Filter: organization
-    const organizationParam = searchParams.get("organization");
-    if (organizationParam) {
-      if (mongoose.isValidObjectId(organizationParam)) {
-        query.organization = organizationParam;
-      } else {
-        const regex = new RegExp(`^${organizationParam}$`, "i");
-        const org =
-          (await Organization.findOne({ slug: regex }).lean()) ||
-          (await Organization.findOne({ name: regex }).lean());
-
-        if (!org) {
-          return Response.json(
-            {
-              success: false,
-              message: `organization “${organizationParam}” not found`,
-            },
-            { status: 404 }
-          );
-        }
-        query.organization = org._id;
-      }
-    }
-
     const posts = await Post.find(query)
       .sort({ createdAt: -1 })
-      // .populate("category")
-      // .populate({ path: "organization", select: "name slug" })
       .populate({ path: "postType", select: "displayName slug" })
+      .populate({ path: "sectionIds", select: "name slug" })
       .lean();
 
     return Response.json({ success: true, data: posts });

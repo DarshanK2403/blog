@@ -5,8 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import InputComponent from "@/app/components/InputComponent";
 import usePostTypes from "@/hook/usePostTypes";
-import useCategories from "@/hook/useCategories";
-import useOrganizations from "@/hook/useOrg";
 import useExtrafields from "@/hook/useExtraFields";
 import { generateSlug } from "@/lib/generateSlug";
 import Loading from "@/app/loading";
@@ -31,8 +29,6 @@ export default function EditPostPage() {
   const [editorContent, setEditorContent] = useState(null);
   const [filteredExtraFields, setFilteredExtraFields] = useState([]);
   const { postTypes } = usePostTypes();
-  const { categories } = useCategories({ all: true });
-  const { organization } = useOrganizations();
   const { extraFields } = useExtrafields();
   const [getLoading, setDataLoading] = useState(false);
   // Options

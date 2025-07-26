@@ -194,10 +194,18 @@ const AllPost = () => {
                                 {formatTimestamp(post.createdAt).split(" ")[1]}
                               </span>
                             </div>
+                            {post?.postType?.displayName !== "page" && (
+                              <div className="text-sm text-gray-900 capitalize font-medium">
+                                <span>Section: </span>
+                                {post?.sectionIds?.map((id) => (
+                                  <span key={id.slug}>{id.name}, </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </td>
 
-                        {/* Category, Organization & Status */}
+                        {/* Organization & Status */}
                         <td className="px-3 py-3 align-top !border-none space-y-1">
                           <div
                             className="text-sm text-gray-900 uppercase truncate max-w-48"
@@ -206,12 +214,9 @@ const AllPost = () => {
                             <span className="font-medium capitalize">
                               Organization:{" "}
                             </span>
-                            {post.organizationName}
+                            {post?.organizationName || "Page"}
                           </div>
-                          {/* <div className="text-sm text-gray-900 capitalize">
-                            <span className="font-medium">Category:</span>{" "}
-                            {post.category.name}
-                          </div> */}
+
                           <div className="mt-1">
                             <span className="text-sm font-medium capitalize">
                               Status:{" "}
@@ -224,18 +229,11 @@ const AllPost = () => {
                               {post.status}
                             </span>
                           </div>
-                        </td>
-
-                        <td className="px-2 py-3 !border-none space-y-1 text-gray-900 align-top">
                           <div className="flex items-center text-sm text-gray-700">
                             <span className="font-medium capitalize">
                               Type:{" "}
                             </span>
                             <span>{post?.postType?.displayName}</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-gray-700">
-                            <span className="font-medium">Publisher: </span>
-                            <span>{post.publisher}</span>
                           </div>
                         </td>
 

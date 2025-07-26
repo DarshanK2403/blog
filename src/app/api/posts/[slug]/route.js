@@ -1,7 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
 import Post from "@/lib/models/Post";
-import Category from "@/lib/models/Category";
-import Organization from "@/lib/models/Organization";
 
 export async function GET(request, context) {
   try {

@@ -36,8 +36,6 @@ export default function Dashboard() {
   const quickLinks = [
     { href: "/admin/posts/new", label: "Create Post", icon: FilePlus },
     { href: "/admin/post-type/new", label: "Create PostType", icon: Layers },
-    { href: "/admin/organization/new", label: "Create Organization", icon: Building },
-    { href: "/admin/categories/new", label: "Create Category", icon: FolderPlus },
   ];
 
   return (
@@ -47,7 +45,6 @@ export default function Dashboard() {
         <StatCard label="Total Posts" value={stats.total} />
         <StatCard label="Published" value={stats.published} />
         <StatCard label="Draft" value={stats.draft} />
-        <DropStatsCard totalOrg={stats.organization} postsPerOrg={stats.postsPerOrg} />
       </div>
 
       {/* Row 2: Quick Links */}

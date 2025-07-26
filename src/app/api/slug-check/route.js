@@ -1,6 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
 import Post from "@/models/Post";
-import Organization from "@/models/Organization";
 
 export async function GET(request) {
   await dbConnect();
@@ -21,9 +20,6 @@ export async function GET(request) {
   switch (type) {
     case "post":
       exists = !!(await Post.findOne({ slug }));
-      break;
-    case "organization":
-      exists = !!(await Organization.findOne({ slug }));
       break;
     default:
       return Response.json(

@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import InputComponent from "@/app/components/InputComponent";
 import usePostTypes from "@/hook/usePostTypes";
-import useCategories from "@/hook/useCategories";
-import useOrganizations from "@/hook/useOrg";
 import dynamic from "next/dynamic";
 import { generateSlug } from "@/lib/generateSlug";
 import useExtrafields from "@/hook/useExtraFields";
@@ -22,19 +20,11 @@ export default function CreatePost() {
   const [status, setStatus] = useState("draft");
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
-  const { categories } = useCategories({ all: true });
-  const categoryOption = categories?.map((data) => ({
-    label: data.name,
-    value: data._id,
-  }));
+  
   const [slug, setSlug] = useState("");
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [isEditingSlug, setIsEditingSlug] = useState(false);
-  const { organization } = useOrganizations();
-  const orgOption = organization?.map((data) => ({
-    label: data.name,
-    value: data._id,
-  }));
+
 
   const { postTypes } = usePostTypes();
   const { sections } = useSections();

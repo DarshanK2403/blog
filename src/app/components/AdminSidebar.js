@@ -38,8 +38,6 @@ const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     posts: false,
-    categories: false,
-    organization: false,
   });
   const pathname = usePathname();
   const router = useRouter();
@@ -96,12 +94,7 @@ const AdminSidebar = () => {
         },
       ],
     },
-    {
-      id: "categories",
-      label: "Categories",
-      icon: FolderOpen,
-      path: "/admin/categories",
-    },
+
     {
       id: "section",
       label: "section",
@@ -109,24 +102,12 @@ const AdminSidebar = () => {
       path: "/admin/section",
     },
     {
-      id: "organization",
-      label: "Organization",
-      icon: Building2,
-      path: "/admin/organization",
-    },
-
-    {
       id: "post-type",
       label: "Post Type",
       icon: Shapes,
       path: "/admin/post-type",
     },
-    {
-      id: "extra-fields",
-      label: "Extra Fields",
-      icon: Puzzle,
-      path: "/admin/extra-fields",
-    },
+
     {
       id: "media",
       label: "Media Library",
@@ -140,12 +121,7 @@ const AdminSidebar = () => {
       path: "/admin/comments",
       badge: "12",
     },
-    {
-      id: "analytics",
-      label: "Analytics",
-      icon: BarChart3,
-      path: "/admin/analytics",
-    },
+
     {
       id: "user-queries",
       label: "User Queries",
