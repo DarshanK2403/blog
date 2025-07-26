@@ -1,6 +1,8 @@
 
 import HomePageServer from "./HomePageServer";
 
+export const revalidate = 0;
+
 export const metadata = {
   title: "Yuva Gujarat · Youth Empowerment Platform",
   description:
