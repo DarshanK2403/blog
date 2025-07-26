@@ -1,17 +1,19 @@
-// app/sitemap.xml/route.js (or route.ts if using TypeScript)
+import dbConnect from "@/lib/dbConnect";
+import Post from "@/models/Post";
 
 export async function GET() {
+  await dbConnect();
+
   const baseUrl = "https://yuvagujarat.in";
 
-  const today = new Date().toISOString().split("T")[0]; 
+  const today = new Date().toISOString().split("T")[0];
 
-  const staticPages = [
-    "",
-    "latest-jobs",
-    "latest-results",
-  ];
+  const lastWeekDate = new Date();
+  lastWeekDate.setDate(lastWeekDate.getDate() - 7);
+  const lastWeek = lastWeekDate.toISOString().split("T")[0];
 
-  const organizationPages = [
+  const staticPages = ["", "latest-jobs", "latest-results"];
+  const quickLink = [
     "banking",
     "clerk",
     "defense",
@@ -29,25 +31,56 @@ export async function GET() {
     "upsc",
   ];
 
-  const urls = [...staticPages, ...organizationPages]
-    .map((slug) => {
-      const loc = `${baseUrl}/${slug}`;
-      const isMain = slug === "";
-      return `
-  <url>
-    <loc>${loc}</loc>
-    ${isMain || slug === "latest-jobs" || slug === "latest-results" ? `<lastmod>${today}</lastmod>` : ""}
-    ${isMain ? `<priority>1.0</priority>` : ""}
-  </url>`;
+  const posts = await Post.find()
+    .populate({
+      path: "postType",
+      select: "slug", // or use "name" if needed
     })
-    .join("");
+    .select("slug updatedAt")
+    .then(
+      (all) => all.filter((post) => post.postType?.slug === "post") // filter only "post" type
+    );
 
-  const content = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>`;
+  const urls = [
+    // Static Pages
+    ...staticPages.map((slug) => {
+      const loc = `${baseUrl}/${slug}`;
+      return `
+        <url>
+          <loc>${loc}</loc>
+          <lastmod>${today}</lastmod>
+          ${slug === "" ? `<priority>1.0</priority>` : ""}
+        </url>`;
+    }),
 
-  return new Response(content.trim(), {
+    // Quick Links
+    ...quickLink.map((slug) => {
+      const loc = `${baseUrl}/${slug}`;
+      return `
+        <url>
+          <loc>${loc}</loc>
+          <lastmod>${lastWeek}</lastmod>
+        </url>`;
+    }),
+
+    // Posts (postType: "post")
+    ...posts.map((post) => {
+      const loc = `${baseUrl}/post/${post.slug}`;
+      const lastmod = post.updatedAt?.toISOString().split("T")[0] || today;
+      return `
+        <url>
+          <loc>${loc}</loc>
+          <lastmod>${lastmod}</lastmod>
+        </url>`;
+    }),
+  ];
+
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      ${urls.join("")}
+    </urlset>`;
+
+  return new Response(sitemap, {
     headers: {
       "Content-Type": "application/xml",
     },
