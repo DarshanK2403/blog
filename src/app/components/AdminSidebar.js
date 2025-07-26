@@ -29,6 +29,7 @@ import {
   HelpCircle,
   MessageCircle,
   Mail,
+  Section,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -102,24 +103,30 @@ const AdminSidebar = () => {
       path: "/admin/categories",
     },
     {
+      id: "section",
+      label: "section",
+      icon: Section,
+      path: "/admin/section",
+    },
+    {
       id: "organization",
       label: "Organization",
       icon: Building2,
       path: "/admin/organization",
     },
-    
-        {
-          id: "post-type",
-          label: "Post Type",
-          icon: Shapes,
-          path: "/admin/post-type",
-        },
-        {
-          id: "extra-fields",
-          label: "Extra Fields",
-          icon: Puzzle,
-          path: "/admin/extra-fields",
-        },
+
+    {
+      id: "post-type",
+      label: "Post Type",
+      icon: Shapes,
+      path: "/admin/post-type",
+    },
+    {
+      id: "extra-fields",
+      label: "Extra Fields",
+      icon: Puzzle,
+      path: "/admin/extra-fields",
+    },
     {
       id: "media",
       label: "Media Library",
@@ -139,7 +146,7 @@ const AdminSidebar = () => {
       icon: BarChart3,
       path: "/admin/analytics",
     },
-     {
+    {
       id: "user-queries",
       label: "User Queries",
       icon: HelpCircle,

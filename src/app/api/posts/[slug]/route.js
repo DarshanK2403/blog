@@ -8,9 +8,7 @@ export async function GET(request, context) {
     await dbConnect();
     const { slug } = await context.params;
 
-    const post = await Post.findOne({ slug })
-      .populate("category")
-      .populate("organization");
+    const post = await Post.findOne({ slug });
 
     if (!post) {
       return Response.json(
@@ -69,12 +67,15 @@ export async function PUT(request, { params }) {
       {
         title: body.title,
         slug: body.slug,
-        type: body.type,
-        category: body.category,
-        organization: body.organization,
+        postType: body.type,
         status: body.status,
         content: body.content,
-        extraFields: body.extraFields,
+        tags: body.tags,
+        sectionIds: body.sectionIds,
+        lastDate: body.lastDate,
+        resultType: body.resultType,
+        updateType: body.updateType,
+        organizationName: body.organizationName,
       },
       { new: true } // return updated document
     );

@@ -1,45 +1,23 @@
+// models/Section.js
 import mongoose from "mongoose";
 
 const sectionSchema = new mongoose.Schema(
   {
-    sectionTitle: {
+    name: {
       type: String,
       required: true,
+      trim: true,
+      unique: true, // Prevent duplicate sections
     },
-    sectionSlug: {
+    slug: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
-    postTypes: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "PostType",
-    },
-    limit: {
-      type: Number,
-      default: 10,
-    },
-    label: {
-      type: String,
-    },
-    order: {
-      type: Number,
-      default: 1,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    fields: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "ExtraField",
-      },
-    ],
   },
   { timestamps: true }
 );
 
-const Section =
-  mongoose.models.Section || mongoose.model("Section", sectionSchema);
-export default Section;
+export default mongoose.models.Section || mongoose.model("Section", sectionSchema);

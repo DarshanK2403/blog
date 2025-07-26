@@ -11,22 +11,46 @@ const PostSchema = new mongoose.Schema(
       ref: "PostType",
     },
     content: { type: Object, required: true },
-    category: {
-      type: mongoose.Schema.ObjectId,
-      ref: "Category",
-      required: true,
-    },
+    tags: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+    
+    // Replace with tags
+    // category: {
+    //   type: mongoose.Schema.ObjectId,
+    //   ref: "Category",
+    //   required: true,
+    // },
+    // Replace with section
     organization: {
       type: mongoose.Schema.ObjectId,
       ref: "Organization",
-      required: true,
     },
+
+    sectionIds: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Section",
+      },
+    ],
+
+    // New Updated
+    lastDate: { type: Date },
+    resultType: { type: String },
+    updateType: { type: String },
+    organizationName: { type: String },
+
     status: {
       type: String,
       enum: ["draft", "published", "archived"],
       default: "draft",
     },
     publisher: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+    // removed
     extraFields: { type: mongoose.Schema.Types.Mixed },
   },
   { timestamps: true }

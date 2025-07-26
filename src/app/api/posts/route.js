@@ -5,6 +5,7 @@ import Organization from "@/lib/models/Organization";
 import Category from "@/lib/models/Category";
 import { requireAdmin } from "@/lib/requireAdmin";
 import mongoose from "mongoose";
+import Section from "@/lib/models/Section";
 
 export async function POST(request) {
   const user = requireAdmin(request);
@@ -19,21 +20,29 @@ export async function POST(request) {
       slug,
       type,
       content,
-      category,
-      organization,
+      tags,
+      sectionIds,
+      lastDate,
+      resultType,
+      updateType,
+      organizationName,
       status,
-      extraFields,
     } = body;
-
+    console.log(body);
     const missingFields = [];
 
     if (!title?.trim()) missingFields.push("Title");
     if (!slug?.trim()) missingFields.push("Slug");
     if (!type) missingFields.push("Type");
     if (!content) missingFields.push("Content");
-    if (!category?.trim()) missingFields.push("Category");
-    if (!organization) missingFields.push("Organization");
+    if (!Array.isArray(tags) || tags.length === 0) missingFields.push("Tags");
+    if (!Array.isArray(sectionIds) || sectionIds.length === 0)
+      missingFields.push("SectionIds");
     if (!status?.trim()) missingFields.push("Status");
+    if (!lastDate) missingFields.push("Last Date");
+    if (!resultType?.trim()) missingFields.push("Result Type");
+    if (!updateType?.trim()) missingFields.push("Update Type");
+    if (!organizationName?.trim()) missingFields.push("Organization Name");
 
     if (missingFields.length > 0) {
       return Response.json(
@@ -46,7 +55,6 @@ export async function POST(request) {
     }
 
     let finalSlug = slug.trim();
-
     const existing = await Post.findOne({ slug: finalSlug });
     if (existing) {
       finalSlug = `${finalSlug}-${Math.floor(Math.random() * 10000)}`;
@@ -57,10 +65,13 @@ export async function POST(request) {
       slug: finalSlug,
       postType: type,
       content,
-      category,
-      organization,
+      tags,
+      sectionIds,
+      lastDate,
+      resultType,
+      updateType,
+      organizationName,
       status,
-      extraFields,
     });
 
     await newPost.save();
@@ -101,7 +112,9 @@ export async function GET(request) {
         return Response.json(
           {
             success: false,
-            message: `Invalid status “${status}”. Allowed: ${allowedStatus.join(", ")}`,
+            message: `Invalid status “${status}”. Allowed: ${allowedStatus.join(
+              ", "
+            )}`,
           },
           { status: 400 }
         );
@@ -118,7 +131,10 @@ export async function GET(request) {
         const type = await PostType.findOne({ slug: postTypeParam }).lean();
         if (!type) {
           return Response.json(
-            { success: false, message: `postType “${postTypeParam}” not found` },
+            {
+              success: false,
+              message: `postType “${postTypeParam}” not found`,
+            },
             { status: 404 }
           );
         }
@@ -139,7 +155,10 @@ export async function GET(request) {
 
         if (!org) {
           return Response.json(
-            { success: false, message: `organization “${organizationParam}” not found` },
+            {
+              success: false,
+              message: `organization “${organizationParam}” not found`,
+            },
             { status: 404 }
           );
         }
@@ -149,14 +168,17 @@ export async function GET(request) {
 
     const posts = await Post.find(query)
       .sort({ createdAt: -1 })
-      .populate("category")
-      .populate({ path: "organization", select: "name slug" })
+      // .populate("category")
+      // .populate({ path: "organization", select: "name slug" })
       .populate({ path: "postType", select: "displayName slug" })
       .lean();
 
     return Response.json({ success: true, data: posts });
   } catch (err) {
     console.error("Error fetching posts:", err);
-    return Response.json({ success: false, message: "Server Error" }, { status: 500 });
+    return Response.json(
+      { success: false, message: "Server Error" },
+      { status: 500 }
+    );
   }
 }

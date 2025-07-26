@@ -10,6 +10,7 @@ import useOrganizations from "@/hook/useOrg";
 import useExtrafields from "@/hook/useExtraFields";
 import { generateSlug } from "@/lib/generateSlug";
 import Loading from "@/app/loading";
+import useSections from "@/hook/useSection";
 
 const EditorComponent = dynamic(
   () => import("@/app/components/EditorComponent"),
@@ -35,19 +36,46 @@ export default function EditPostPage() {
   const { extraFields } = useExtrafields();
   const [getLoading, setDataLoading] = useState(false);
   // Options
+
   const typeOption = postTypes?.map((type) => ({
     label: type.displayName,
     value: type._id,
   }));
-  const categoryOption = categories?.map((cat) => ({
-    label: cat.name,
-    value: cat._id,
-  }));
-  const orgOption = organization?.map((org) => ({
-    label: org.name,
-    value: org._id,
-  }));
 
+  const [tags, setTags] = useState([]);
+  const [input, setInput] = useState("");
+  const { sections } = useSections();
+  const sectionOption = sections?.map((type) => ({
+    label: type.name,
+    value: type._id,
+  }));
+  const addTag = () => {
+    const trimmed = input.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags([...tags, trimmed]);
+    }
+    setInput("");
+  };
+
+  const removeTag = (tag) => {
+    setTags(tags.filter((t) => t !== tag));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
+  };
   // Fetch post
   useEffect(() => {
     const fetchPost = async () => {
@@ -55,14 +83,19 @@ export default function EditPostPage() {
       try {
         const res = await fetch(`/api/posts/${slug}`);
         const data = await res.json();
+        if ("tags" in data.data) {
+          setTags(data.data.tags || []);
+        }
         console.log(data);
         if (res.ok) {
           setTitle(data.data.title || "");
           setFormData({
             type: data.data.postType,
-            category: data.data.category._id,
-            organization: data.data.organization._id,
-            ...data.data.extraFields,
+            lastDate: data.data?.lastDate ? data.data.lastDate.slice(0, 10) : "",
+            resultType: data.data.resultType,
+            updateType: data.data.updateType,
+            organizationName: data.data.organizationName,
+            sectionIds: data.data.sectionIds,
           });
           setStatus(data.data.status || "draft");
           setEditorContent(data?.data.content || null);
@@ -107,18 +140,19 @@ export default function EditPostPage() {
     setIsLoading(true);
     try {
       const contentRaw = await editorRef.current?.save();
+      console.log(formData);
       const postData = {
-        title: title.trim(),
-        slug: formData.slug,
         type: formData.type,
-        category: formData.category,
-        organization: formData.organization,
+        slug,
+        title: title.trim(),
         status: finalStatus,
         content: contentRaw,
-        extraFields: filteredExtraFields.reduce((acc, field) => {
-          acc[field.name] = formData[field.name] || "";
-          return acc;
-        }, {}),
+        tags: tags,
+        sectionIds: formData.sectionIds,
+        lastDate: formData.lastDate,
+        resultType: formData.resultType,
+        updateType: formData.updateType,
+        organizationName: formData.organizationName,
       };
 
       const res = await fetch(`/api/posts/${slug}`, {
@@ -143,24 +177,39 @@ export default function EditPostPage() {
   const formFields = [
     {
       name: "type",
-      label: "Post Type",
+      label: "Post Types",
       type: "select",
       required: true,
       options: typeOption,
     },
     {
-      name: "organization",
-      label: "Organization",
-      type: "select",
-      required: true,
-      options: orgOption,
+      name: "lastDate",
+      label: "Last Date",
+      type: "date",
     },
     {
-      name: "category",
-      label: "Category",
-      type: "select",
+      name: "resultType",
+      label: "Result Type",
+      type: "text",
+    },
+    {
+      name: "updateType",
+      label: "Update Type",
+      type: "text",
       required: true,
-      options: categoryOption,
+    },
+    {
+      name: "organizationName",
+      label: "Organization Name",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "sectionIds",
+      label: "Section",
+      type: "multi-select",
+      required: true,
+      options: sectionOption,
     },
   ];
 
@@ -226,6 +275,37 @@ export default function EditPostPage() {
               onChange={handleInputChange}
             />
           ))}
+        </div>
+
+        <div className="w-full border border-gray-300 bg-white px-3 py-2 text-sm">
+          <label className="block text-gray-800 mb-1 font-medium">Tags:</label>
+
+          <div className="flex flex-wrap gap-2 mb-2">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="bg-gray-900 text-white px-2 py-1 text-xs flex items-center gap-1"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="text-gray-300 hover:text-white"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type and press Enter"
+            className="w-full outline-none border-none"
+          />
         </div>
 
         {/* Extra Fields */}

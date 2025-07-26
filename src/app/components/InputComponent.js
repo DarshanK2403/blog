@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import React from "react";
 
 export default function InputComponent({ field, value, onChange }) {
@@ -29,9 +30,43 @@ export default function InputComponent({ field, value, onChange }) {
             )}
 
             {field.type === "multi-select" && (
-              <fieldset disabled={field.disabled}>
-                <div className="w-full border border-slate-300 bg-white px-3 py-2 text-sm focus-within:ring-2 focus-within:ring-slate-900 focus-within:border-transparent">
-                  <div className="flex flex-wrap gap-1 mb-2">
+              <fieldset disabled={field.disabled} className="w-full">
+                <div className="w-full text-sm">
+                  {/* Custom Underlined Dropdown */}
+                  <div className="relative">
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        const selectedValue = e.target.value;
+                        if (
+                          selectedValue &&
+                          !(value || []).includes(selectedValue)
+                        ) {
+                          onChange(field.name, [
+                            ...(value || []),
+                            selectedValue,
+                          ]);
+                        }
+                      }}
+                      className="w-full appearance-none border-0 border-b border-black bg-transparent px-1 py-2 text-gray-900 focus:outline-none focus:ring-0 focus:border-black"
+                    >
+                      <option value="">Select option</option>
+                      {field.options
+                        .filter((opt) => !(value || []).includes(opt.value))
+                        .map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                    </select>
+                    {/* Dropdown arrow */}
+                    <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                      <ChevronDown size={20}/>
+                    </div>
+                  </div>
+
+                  {/* Selected Items */}
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {(value || []).map((val) => {
                       const label =
                         field.options.find((opt) => opt.value === val)?.label ||
@@ -39,7 +74,7 @@ export default function InputComponent({ field, value, onChange }) {
                       return (
                         <span
                           key={val}
-                          className="bg-slate-900 text-white rounded-full px-3 py-1 text-xs flex items-center"
+                          className="bg-black text-white px-2 py-1 text-xs flex items-center gap-1"
                         >
                           {label}
                           <button
@@ -50,37 +85,14 @@ export default function InputComponent({ field, value, onChange }) {
                                 value.filter((v) => v !== val)
                               )
                             }
-                            className="ml-2 text-red-400 hover:text-red-600"
+                            className="text-white hover:text-red-400 focus:outline-none"
                           >
-                            &times;
+                            ×
                           </button>
                         </span>
                       );
                     })}
                   </div>
-
-                  <select
-                    value=""
-                    onChange={(e) => {
-                      const selectedValue = e.target.value;
-                      if (
-                        selectedValue &&
-                        !(value || []).includes(selectedValue)
-                      ) {
-                        onChange(field.name, [...(value || []), selectedValue]);
-                      }
-                    }}
-                    className="w-full bg-white text-gray-800"
-                  >
-                    <option value="">Select</option>
-                    {field.options
-                      .filter((opt) => !(value || []).includes(opt.value))
-                      .map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                  </select>
                 </div>
               </fieldset>
             )}

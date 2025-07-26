@@ -54,7 +54,6 @@ const AllPost = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [categoryFilter, setCategoryFilter] = useState("All");
 
   // Filter posts based on search and filters
   const filteredPosts = posts?.filter((post) => {
@@ -64,10 +63,8 @@ const AllPost = () => {
       post.publisher.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       statusFilter === "All" || post.postType.slug === statusFilter;
-    const matchesCategory =
-      categoryFilter === "All" || post.category === categoryFilter;
 
-    return matchesSearch && matchesStatus && matchesCategory;
+    return matchesSearch && matchesStatus;
   });
 
   const getStatusBadge = (status) => {
@@ -151,20 +148,6 @@ const AllPost = () => {
                 </option>
               ))}
             </select>
-
-            {/* Category Filter */}
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 focus:outline-none focus:border-black"
-            >
-              <option value="All">All Categories</option>
-              <option value="Tutorial">Tutorial</option>
-              <option value="Design">Design</option>
-              <option value="Dev">Dev</option>
-              <option value="Backend">Backend</option>
-              <option value="Security">Security</option>
-            </select>
           </div>
         </div>
 
@@ -219,17 +202,17 @@ const AllPost = () => {
                         <td className="px-3 py-3 align-top !border-none space-y-1">
                           <div
                             className="text-sm text-gray-900 uppercase truncate max-w-48"
-                            title={post.organization}
+                            title={post.organizationName}
                           >
                             <span className="font-medium capitalize">
                               Organization:{" "}
                             </span>
-                            {post.organization.name}
+                            {post.organizationName}
                           </div>
-                          <div className="text-sm text-gray-900 capitalize">
+                          {/* <div className="text-sm text-gray-900 capitalize">
                             <span className="font-medium">Category:</span>{" "}
                             {post.category.name}
-                          </div>
+                          </div> */}
                           <div className="mt-1">
                             <span className="text-sm font-medium capitalize">
                               Status:{" "}

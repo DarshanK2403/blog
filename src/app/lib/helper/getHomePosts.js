@@ -1,41 +1,41 @@
 // lib/helpers/getHomePosts.js
 import dbConnect from "@/lib/dbConnect";
 import Post from "@/lib/models/Post";
-import PostType from "@/lib/models/PostType";
-import { Organization } from '@/lib/models/Organization';
+import Section from "@/lib/models/Section";
 
 export async function getHomePosts() {
   await dbConnect();
 
-  const slugs = ["latest-jobs", "latest-results", "job-updates"];
-  const postTypes = await PostType.find({ slug: { $in: slugs } });
-  const postTypeMap = Object.fromEntries(postTypes.map(pt => [pt.slug, pt._id]));
+  // Step 1: Get all required sections by slug
+  const slugs = ["requirement", "results", "updates"];
+  const sections = await Section.find({ slug: { $in: slugs } }).lean();
 
-  const fetchPosts = (postTypeId) =>
-    Post.find({ postType: postTypeId, status: "published" })
-      .select("title slug extraFields createdAt")
-      .populate("organization", "name")
+  // Step 2: Map slugs to their _id for quick access
+  const sectionMap = Object.fromEntries(sections.map(sec => [sec.slug, sec._id]));
+
+  // Step 3: Define a helper to fetch posts by sectionId
+  const fetchPosts = async (sectionSlug) => {
+    const sectionId = sectionMap[sectionSlug];
+    if (!sectionId) return [];
+
+    return await Post.find({
+      sectionIds: sectionId,
+      status: "published",
+    })
+      .select("title slug createdAt organizationName lastDate updateType resultType")
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
+  };
 
-  const latestJobsPromise = postTypeMap["latest-jobs"]
-    ? fetchPosts(postTypeMap["latest-jobs"])
-    : Promise.resolve([]);
-  const latestResultsPromise = postTypeMap["latest-results"]
-    ? fetchPosts(postTypeMap["latest-results"])
-    : Promise.resolve([]);
-
-  const [latestJobs, latestResults] = await Promise.all([
-    latestJobsPromise,
-    latestResultsPromise,
+  // Step 4: Get posts from each section
+  const [latestJobs, latestResults, jobUpdates] = await Promise.all([
+    fetchPosts("requirement"),
+    fetchPosts("results"),
+    fetchPosts("updates"),
   ]);
 
-  const jobUpdates = [...latestJobs, ...latestResults]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 10);
-
-  // ✅ Convert to plain serializable data
+  // Step 5: Return plain JSON
   return JSON.parse(
     JSON.stringify({
       latestJobs,

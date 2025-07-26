@@ -8,7 +8,7 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-IN", {
       year: "numeric",
-      month: "short",
+      month: "numeric",
       day: "numeric",
     });
   };
@@ -47,13 +47,17 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
           items={latestJobs}
           getSlug={(item) => `/posts/${item.slug}`}
           getTitle={(item) => item?.title}
-          getOrg={(item) => item?.organization?.name}
+          getOrg={(item) => item?.organizationName}
           renderRight={(item) => (
             <span className="text-sm text-red-600 font-medium">
               (<span className="text-nowrap">Last Date: </span>{" "}
-              <span className="text-nowrap">
-                {item?.extraFields?.["last-date"] || "To be announced"}
-              </span>
+              {item?.lastDate ? (
+                <span className="text-nowrap">
+                  {formatDate(item.lastDate) || "To be announced"}
+                </span>
+              ) : (
+                <span className="text-nowrap">To be announced</span>
+              )}
               )
             </span>
           )}
@@ -64,10 +68,10 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
           items={latestResults}
           getSlug={(item) => `/posts/${item.slug}`}
           getTitle={(item) => item?.title}
-          getOrg={(item) => item?.organization?.name}
+          getOrg={(item) => item?.organizationName}
           renderRight={(item) => (
             <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
-              {item?.extraFields?.resultType}
+              {item?.resultType}
             </span>
           )}
         />
@@ -99,18 +103,18 @@ export default function HomeContent({ latestJobs, latestResults, jobUpdates }) {
                         <Bell className="w-4 h-4 text-blue-600 shrink-0" />
                         <span className="line-clamp-2">{update.title}</span>
                       </h3>
-                      {update.extraFields?.description && (
+                      {update?.description && (
                         <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">
-                          {update.extraFields.description}
+                          {update?.description}
                         </p>
                       )}
                       <div className="mt-2 flex flex-wrap gap-2 text-xs">
                         <span
                           className={`px-2 py-1 rounded-full font-medium ${getUpdateTypeColor(
-                            update.extraFields?.subject
+                            update.updateType
                           )}`}
                         >
-                          {update.extraFields?.subject || "-"}
+                          {update.updateType || "-"}
                         </span>
                         <span className="text-gray-500">
                           {formatDate(update.createdAt)}
@@ -159,8 +163,9 @@ function Section({ title, items, getSlug, getTitle, getOrg, renderRight }) {
                         <span className="font-medium font-sans text-gray-900 hover:text-blue-600 truncate">
                           {getTitle(item)}
                         </span>
+                        <span> - </span>
                         <span className="text-blue-600 font-medium truncate max-w-[14rem]">
-                          {/* {getOrg(item)} */}
+                          {getOrg(item)}
                         </span>
                       </div>
                       <div className="text-sm text-right whitespace-nowrap">

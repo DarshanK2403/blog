@@ -9,6 +9,7 @@ import useOrganizations from "@/hook/useOrg";
 import dynamic from "next/dynamic";
 import { generateSlug } from "@/lib/generateSlug";
 import useExtrafields from "@/hook/useExtraFields";
+import useSections from "@/hook/useSection";
 
 const EditorComponent = dynamic(
   () => import("@/app/components/EditorComponent"),
@@ -36,8 +37,14 @@ export default function CreatePost() {
   }));
 
   const { postTypes } = usePostTypes();
+  const { sections } = useSections();
+
   const typeOption = postTypes?.map((type) => ({
     label: type.displayName,
+    value: type._id,
+  }));
+  const sectionOption = sections?.map((type) => ({
+    label: type.name,
     value: type._id,
   }));
 
@@ -49,6 +56,28 @@ export default function CreatePost() {
     extractedExtraFields[field.name] = formData[field.name] || "";
   });
 
+  const [tags, setTags] = useState([]);
+  const [input, setInput] = useState("");
+
+  const addTag = () => {
+    const trimmed = input.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags([...tags, trimmed]);
+    }
+    setInput("");
+  };
+
+  const removeTag = (tag) => {
+    setTags(tags.filter((t) => t !== tag));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag();
+    }
+  };
+  
   useEffect(() => {
     if (formData.type) {
       const matchedFields = extraFields.filter(
@@ -75,13 +104,15 @@ export default function CreatePost() {
       const postData = {
         type: formData.type,
         slug,
-        extraFields,
         title: title.trim(),
-        category: formData.category,
-        organization: formData.organization,
         status: finalStatus,
         content: contentRaw,
-        extraFields: extractedExtraFields,
+        tags: tags,
+        sectionIds: formData.sectionIds,
+        lastDate: formData.lastDate,
+        resultType: formData.resultType,
+        updateType: formData.updateType,
+        organizationName: formData.organizationName,
       };
 
       const res = await fetch("/api/posts", {
@@ -94,7 +125,7 @@ export default function CreatePost() {
       });
 
       const data = await res.json();
-      console.log(data)
+      console.log(data);
       if (data.success) {
         router.push("/admin/posts");
       } else {
@@ -129,18 +160,33 @@ export default function CreatePost() {
       options: typeOption,
     },
     {
-      name: "organization",
-      label: "Organization",
-      type: "select",
-      required: true,
-      options: orgOption,
+      name: "lastDate",
+      label: "Last Date",
+      type: "date",
     },
     {
-      name: "category",
-      label: "Category",
-      type: "select",
+      name: "resultType",
+      label: "Result Type",
+      type: "text",
+    },
+    {
+      name: "updateType",
+      label: "Update Type",
+      type: "text",
       required: true,
-      options: categoryOption,
+    },
+    {
+      name: "organizationName",
+      label: "Organization Name",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "sectionIds",
+      label: "Section",
+      type: "multi-select",
+      required: true,
+      options: sectionOption,
     },
   ];
 
@@ -287,11 +333,41 @@ export default function CreatePost() {
                 />
               ))}
 
+              <div className="w-full border border-gray-300 bg-white px-3 py-2 text-sm">
+                <label className="block text-gray-800 mb-1 font-medium">
+                  Tags:
+                </label>
+
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-gray-900 text-white px-2 py-1 text-xs flex items-center gap-1"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="text-gray-300 hover:text-white"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type and press Enter"
+                  className="w-full outline-none border-none"
+                />
+              </div>
+
               {filteredExtraFields.length > 0 && (
                 <>
-                  <h4 className="text-sm font-semibold text-slate-700 mt-6">
-                    Extra Fields
-                  </h4>
                   {filteredExtraFields.map((field) => (
                     <InputComponent
                       key={field._id}

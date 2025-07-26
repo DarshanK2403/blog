@@ -39,7 +39,7 @@ export default function PageComponent({ content }) {
   );
 
   return (
-    <div style={{ minHeight: "400px" }}>
+    <div>
       <div
         className={styles.post}
         dangerouslySetInnerHTML={{ __html: htmlOutput }}
