@@ -37,6 +37,14 @@ export default function Sidebar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      console.error("Adsbygoogle error", e);
+    }
+  }, []);
+
   const handleNavigate = (slug) => {
     router.push(`/${slug}`);
     setIsOpen(false);
@@ -45,6 +53,7 @@ export default function Sidebar() {
   return (
     <aside
       ref={ref}
+      aria-label="Quick Links Sidebar"
       className="px-4 py-4 sm:py-6 sm:px-6 bg-white sm:bg-transparent border-b sm:border-b-0 sm:border-r border-gray-200 font-sans"
     >
       <h2 className="text-lg font-semibold mb-4 text-gray-900">Quick Links</h2>
@@ -62,6 +71,17 @@ export default function Sidebar() {
             )}
           </div>
         ))}
+      </div>
+
+      <div className="mt-6">
+        <ins
+          className="adsbygoogle"
+          style={{ display: "block", textAlign: "center" }}
+          data-ad-client="ca-pub-3770241554874739"
+          data-ad-slot="8265692119"
+          data-ad-format="fluid"
+          data-ad-layout="in-article"
+        ></ins>
       </div>
     </aside>
   );

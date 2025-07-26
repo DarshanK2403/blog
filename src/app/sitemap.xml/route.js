@@ -1,43 +1,53 @@
+// app/sitemap.xml/route.js (or route.ts if using TypeScript)
+
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.yuvagujarat.in";
+  const baseUrl = "https://yuvagujarat.in";
 
-  const content = `
-<?xml version="1.0" encoding="UTF-8"?>
+  const today = new Date().toISOString().split("T")[0]; 
+
+  const staticPages = [
+    "",
+    "latest-jobs",
+    "latest-results",
+  ];
+
+  const organizationPages = [
+    "banking",
+    "clerk",
+    "defense",
+    "forest",
+    "gpsc",
+    "high-court",
+    "ibps",
+    "judiciary",
+    "ojas",
+    "police",
+    "railway",
+    "ssc",
+    "teacher",
+    "technical",
+    "upsc",
+  ];
+
+  const urls = [...staticPages, ...organizationPages]
+    .map((slug) => {
+      const loc = `${baseUrl}/${slug}`;
+      const isMain = slug === "";
+      return `
+  <url>
+    <loc>${loc}</loc>
+    ${isMain || slug === "latest-jobs" || slug === "latest-results" ? `<lastmod>${today}</lastmod>` : ""}
+    ${isMain ? `<priority>1.0</priority>` : ""}
+  </url>`;
+    })
+    .join("");
+
+  const content = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`;
 
-  <!-- Main Pages -->
-  <url>
-    <loc>${baseUrl}/</loc>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/latest-jobs</loc>
-  </url>
-  <url>
-    <loc>${baseUrl}/latest-results</loc>
-  </url>
-
-  <!-- Organization Pages -->
-  <url><loc>${baseUrl}/ssc</loc></url>
-  <url><loc>${baseUrl}/upsc</loc></url>
-  <url><loc>${baseUrl}/gpsc</loc></url>
-  <url><loc>${baseUrl}/ojas</loc></url>
-  <url><loc>${baseUrl}/ibps</loc></url>
-  <url><loc>${baseUrl}/railway</loc></url>
-  <url><loc>${baseUrl}/defense</loc></url>
-  <url><loc>${baseUrl}/police</loc></url>
-  <url><loc>${baseUrl}/forest</loc></url>
-  <url><loc>${baseUrl}/teacher</loc></url>
-  <url><loc>${baseUrl}/clerk</loc></url>
-  <url><loc>${baseUrl}/banking</loc></url>
-  <url><loc>${baseUrl}/high-court</loc></url>
-  <url><loc>${baseUrl}/judiciary</loc></url>
-  <url><loc>${baseUrl}/technical</loc></url>
-
-</urlset>
-  `.trim();
-
-  return new Response(content, {
+  return new Response(content.trim(), {
     headers: {
       "Content-Type": "application/xml",
     },

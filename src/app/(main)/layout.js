@@ -40,6 +40,7 @@ export default function RootLayout({ children }) {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3770241554874739"
           crossOrigin="anonymous"
         ></script>
+        
       </head>
       <body className="antialiased">
         <div className=" bg-[#F6F8FA] flex w-screen flex-col min-h-screen">
