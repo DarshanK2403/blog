@@ -36,11 +36,7 @@ export async function POST(request) {
     if (!type) missingFields.push("Type");
     if (!content) missingFields.push("Content");
     if (!Array.isArray(tags) || tags.length === 0) missingFields.push("Tags");
-    if (!Array.isArray(sectionIds) || sectionIds.length === 0)
-      missingFields.push("SectionIds");
     if (!status?.trim()) missingFields.push("Status");
-    if (!updateType?.trim()) missingFields.push("Update Type");
-    if (!organizationName?.trim()) missingFields.push("Organization Name");
 
     if (missingFields.length > 0) {
       return Response.json(

@@ -20,7 +20,7 @@ export default function Footer() {
 
   const quickLinks2 = [
     // { title: "Latest Jobs", slug: "latest-jobs" },
-    { title: "Admit Cards", slug: "admit-cards" },
+    { title: "Admit Card", slug: "admit-card" },
     { title: "Results", slug: "results" },
     { title: "Syllabus", slug: "syllabus" },
     { title: "Answer Keys", slug: "answer-keys" },
