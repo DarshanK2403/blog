@@ -1,6 +1,6 @@
+
 import HomePageServer from "./HomePageServer";
 
-// app/page.js or app/(main)/page.js
 export const metadata = {
   title: "Yuva Gujarat · Youth Empowerment Platform",
   description:

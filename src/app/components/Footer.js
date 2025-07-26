@@ -105,7 +105,7 @@ export default function Footer() {
 
         {/* Bottom Note */}
         <div className="mt-8 border-t border-gray-300 pt-6 text-center text-sm text-gray-500">
-          © 2025 GovJobs Portal. All rights reserved. | Made with ❤️ for job
+          © 2025 Yuva Gujarat. All rights reserved. | Made with ❤️ for job
           seekers
         </div>
       </div>
