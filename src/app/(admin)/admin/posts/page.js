@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import usePostTypes from "@/hook/usePostTypes";
 
 const AllPost = () => {
-  // Sample data - replace with your actual data source
   const [posts, setPosts] = useState([]);
   const router = useRouter();
   const [deletingSlug, setDeletingSlug] = useState(null);
